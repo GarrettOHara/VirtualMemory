@@ -45,7 +45,7 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
 
 #define DEFERREPLY		0x20	// deferred reply
 #define INTA			0x21	// interrupt acknowledge
-#define CNTRLAGNTRES		0x22	// central agent response
+#define CNTRLAGNTRES	0x22	// central agent response
 #define BRTRACEREC		0x23	// branch trace record
 
 #define SHUTDOWN		0x31	// shutdown
@@ -55,5 +55,3 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
 #define FLUSHACK		0x35	// acknowledge flush
 #define STOPCLKACK		0x36	// acknowledge stop clock
 #define SMIACK			0x37	// acknowledge SMI mode
-						
-

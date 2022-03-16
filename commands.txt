@@ -1,0 +1,8 @@
+CAT non readable files
+
+cat -v
+
+od -c
+
+use fold -X to set max output width
+
