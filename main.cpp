@@ -12,6 +12,7 @@ using namespace std;
 
 int main(int argc, char* argv[]){
     FILE* file;
+    p2AddrTr mtrace;
     cout << system("vim tmp") << endl;
     
     try{
@@ -21,13 +22,20 @@ int main(int argc, char* argv[]){
         cout << endl;
 
         file = fopen(argv[FILE_INDEX],"r");
-        // while(true) {
-        //     int c = fgetc(file);
-        //     if( feof(file) ) { 
-        //         break;
-        //     }
-        //     printf("%c", c);
-        // }
+        uint32_t vAddr;
+
+        while(true) {
+            // int c = fgetc(file);
+            if( feof(file) ) { 
+                break;
+            }
+
+            if(NextAddress(file, &mtrace)){
+                vAddr = mtrace.addr;
+            }
+            printf("%c", vAddr);
+        }
+        
         fclose(file);
 
     } catch (...){
