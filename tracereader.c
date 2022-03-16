@@ -148,9 +148,9 @@ void AddressDecoder(p2AddrTr *addr_ptr, FILE *out) {
 
 int main(int argc, char **argv)
 {
-  FILE *ifp;	        /* trace file */
+  FILE *ifp;	          /* trace file */
   unsigned long i = 0;  /* instructions processed */
-  p2AddrTr trace;	/* traced address */
+  p2AddrTr trace;	      /* traced address */
 
   /* check usage */
   if(argc != 2) {
