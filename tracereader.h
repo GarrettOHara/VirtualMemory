@@ -3,12 +3,11 @@
  * Check and see if we are using C or C++ and include appropriately
  * so that this will compile under C and C++
  */
-// #ifdef __cplusplus
-#ifndef TRACEREADER_H_
-/* C++ includes */
+#ifndef  TRACEREADER_H_
+#define  TRACEREADER_H_
 #include <stdint.h>
-#endif
-
+#include <inttypes.h>
+#include <stdio.h>
 
 
 typedef struct BYUADDRESSTRACE
@@ -32,7 +31,6 @@ typedef enum {
  * See byu_tracereader.c for details.
  */
 int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
-//void AddressDecoder(p2AddrTr *addr_ptr, FILE *out);
 
 /* reqtype values */
 #define FETCH			0x00	// instruction fetch
@@ -56,4 +54,4 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
 #define STOPCLKACK		0x36	// acknowledge stop clock
 #define SMIACK			0x37	// acknowledge SMI mode
 
-// #endif                                           // TRACEREADER_H_
+#endif                                           // TRACEREADER_H_
