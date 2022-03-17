@@ -3,11 +3,14 @@
  * Check and see if we are using C or C++ and include appropriately
  * so that this will compile under C and C++
  */
-#ifndef  TRACEREADER_H_
-#define  TRACEREADER_H_
+#ifndef TRACE_H_
+/* C++ includes */
 #include <stdint.h>
-#include <inttypes.h>
 #include <stdio.h>
+#else
+/* C includes */
+#include <inttypes.h>
+#endif 
 
 
 typedef struct BYUADDRESSTRACE
@@ -43,7 +46,7 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
 
 #define DEFERREPLY		0x20	// deferred reply
 #define INTA			0x21	// interrupt acknowledge
-#define CNTRLAGNTRES	0x22	// central agent response
+#define CNTRLAGNTRES		0x22	// central agent response
 #define BRTRACEREC		0x23	// branch trace record
 
 #define SHUTDOWN		0x31	// shutdown
@@ -53,5 +56,3 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
 #define FLUSHACK		0x35	// acknowledge flush
 #define STOPCLKACK		0x36	// acknowledge stop clock
 #define SMIACK			0x37	// acknowledge SMI mode
-
-#endif                                           // TRACEREADER_H_
