@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <cstdlib>
 #include "tracereader.h"
 
 
