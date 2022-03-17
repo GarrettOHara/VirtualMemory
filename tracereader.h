@@ -4,13 +4,17 @@
  * so that this will compile under C and C++
  */
 #ifndef TRACE_H_
+#define TRACE_H_
+
+
+#ifdef __cplusplus
 /* C++ includes */
 #include <stdint.h>
 #include <stdio.h>
 #else
 /* C includes */
 #include <inttypes.h>
-#endif 
+#endif
 
 
 typedef struct BYUADDRESSTRACE
@@ -56,3 +60,5 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
 #define FLUSHACK		0x35	// acknowledge flush
 #define STOPCLKACK		0x36	// acknowledge stop clock
 #define SMIACK			0x37	// acknowledge SMI mode
+
+#endif
