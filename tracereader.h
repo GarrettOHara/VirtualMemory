@@ -7,7 +7,7 @@
 #ifndef TRACEREADER_H_
 /* C++ includes */
 #include <stdint.h>
-
+#endif
 
 
 
@@ -56,4 +56,4 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
 #define STOPCLKACK		0x36	// acknowledge stop clock
 #define SMIACK			0x37	// acknowledge SMI mode
 
-#endif                                           // TRACEREADER_H_
+// #endif                                           // TRACEREADER_H_
