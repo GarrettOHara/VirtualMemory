@@ -144,7 +144,7 @@ void AddressDecoder(p2AddrTr *addr_ptr, FILE *out) {
 
 
 
-#ifdef STANDALONE  /* #define to use this as a program */
+#ifndef STANDALONE  /* #define to use this as a program */
 
 int main(int argc, char **argv)
 {
