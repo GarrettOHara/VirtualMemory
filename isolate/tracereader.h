@@ -3,9 +3,10 @@
  * Check and see if we are using C or C++ and include appropriately
  * so that this will compile under C and C++
  */
-#ifdef __cplusplus
+#ifndef TRACE_H_
 /* C++ includes */
 #include <stdint.h>
+#include <stdio.h>
 #else
 /* C includes */
 #include <inttypes.h>
@@ -57,3 +58,5 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
 #define SMIACK			0x37	// acknowledge SMI mode
 						
 
+
+// #endif
