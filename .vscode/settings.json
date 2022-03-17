@@ -1,9 +1,10 @@
 {
-    "files.associations": {
-        "*.rmd": "markdown",
-        "stdio.h": "c",
-        "cstdlib": "c",
-        "tracereader.h": "c",
-        "stdint.h": "c"
-    }
+  "files.associations": {
+    "*.rmd": "markdown",
+    "stdio.h": "c",
+    "cstdlib": "c",
+    "tracereader.h": "c",
+    "stdint.h": "c",
+    "iostream": "cpp"
+  }
 }
