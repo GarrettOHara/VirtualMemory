@@ -10,6 +10,8 @@
 #include "level.h"
 #include <iostream>
 
+class level;
+
 class tree {
     private:
         int levels;
