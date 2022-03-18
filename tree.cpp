@@ -21,7 +21,7 @@ tree::tree(int depth, int **tree_structure){
         bitshift[i] = &val;
 
         /* set page sizes per level */
-        val = pow(2,(int)tree_structure[i]);
+        val = pow(2,*((int*)(&tree_structure[i])));
         entrycount[i] = &val;
 
     }
