@@ -1,5 +1,5 @@
-// #include "tree.h"
-// #include "level.h"
+#include "tree.h"
+#include "level.h"
 #include <iostream>
 #include <unordered_set>
 #include <math.h>
@@ -11,28 +11,29 @@
 using namespace std;
 
 int main(int argc, char **argv){
-    
+    int **array;
+    tree *t = new tree(5,array);
     try{
-        if(argc < 3)
-            throw invalid_argument("You must supply the trace file "
-                "and a bit mask.\n");
-        for(int i = 1; i < argc; i++){
-            if(isdigit(stoi(argv[i]))){
-                cout << "yes" << endl;
-                if(atoi(argv[i]) < 1)
-                    throw invalid_argument("Level "+to_string(arguments::level_count)+
-                        " page table must be at least 1 bit");
-                arguments::bit_count+=int(stoi(argv[i]));
-            }
+        // if(argc < 3)
+        //     throw invalid_argument("You must supply the trace file "
+        //         "and a bit mask.\n");
+        // for(int i = 1; i < argc; i++){
+        //     if(isdigit(stoi(argv[i]))){
+        //         cout << "yes" << endl;
+        //         if(atoi(argv[i]) < 1)
+        //             throw invalid_argument("Level "+to_string(arguments::level_count)+
+        //                 " page table must be at least 1 bit");
+        //         arguments::bit_count+=int(stoi(argv[i]));
+        //     }
             
-            arguments::args.insert(argv[i]);
-        }
-        cout << arguments::bit_count << endl;
-        if(arguments::bit_count > 28)
-            throw invalid_argument("Too many bits used in page tables");
+        //     arguments::args.insert(argv[i]);
+        // }
+        // cout << arguments::bit_count << endl;
+        // if(arguments::bit_count > 28)
+        //     throw invalid_argument("Too many bits used in page tables");
 
-        if(arguments::args.count(TRACE_FILE)==0)
-            throw invalid_argument("Unable to open <<"+string(TRACE_FILE)+">>");
+        // if(arguments::args.count(TRACE_FILE)==0)
+        //     throw invalid_argument("Unable to open <<"+string(TRACE_FILE)+">>");
         
     } catch(const char* msg){
         cout << msg << endl;

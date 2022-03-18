@@ -10,10 +10,12 @@
 #include "tree.h"
 #include <iostream>
 
+class tree;
+
 class level {
     private:
         int depth;
-        tree::tree *tree_ptr;
+        tree *tree_ptr;
         level *level_pts[];
         
     public:
