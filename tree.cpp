@@ -3,7 +3,7 @@
 #include "level.h"
 
 /* CONSTRUCTOR */
-tree::tree(int depth, int *tree_structure[]){
+tree::tree(int depth, int **tree_structure){
     
     // root_ptr = nullptr;
     // level::level *l = new level(0,bitmask[0]);

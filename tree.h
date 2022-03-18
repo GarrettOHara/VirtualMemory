@@ -23,7 +23,7 @@ class tree {
         int extract_vpn();
         
     public:
-        tree(int depth, int *tree_structure[]);
+        tree(int depth, int **tree_structure);
         ~tree();
 
         void insert();

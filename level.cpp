@@ -18,7 +18,7 @@ level::level(int depth, int *size){
      *  KEY: EXTRACTED VPN VALUE
      *  VALUE: POINTER TO NEXT LEVEL 
      */
-    std::map<int,char*>;
+    // std::map<int,char*>;
 
     /* 2^N*4 SIZE ARRAY
        1 HEX CHAR = 4 BITS: 16
