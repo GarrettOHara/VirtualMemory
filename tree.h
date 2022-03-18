@@ -15,15 +15,15 @@ class level;
 class tree {
     private:
         int levels;
-        int **bitmask;
-        int **bitshift;
-        int **entrycount;
+        int *bitmask;
+        int *bitshift;
+        int *entrycount;
         level *root_ptr;
 
         int extract_vpn();
         
     public:
-        tree(int depth, int **tree_structure);
+        tree(int depth, int *tree_structure);
         ~tree();
 
         void insert();

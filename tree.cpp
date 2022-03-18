@@ -3,7 +3,7 @@
 #include "level.h"
 
 /* CONSTRUCTOR */
-tree::tree(int depth, int **tree_structure){
+tree::tree(int depth, int *tree_structure){
     
     // root_ptr = nullptr;
     // level::level *l = new level(0,bitmask[0]);
@@ -17,12 +17,10 @@ tree::tree(int depth, int **tree_structure){
         bitmask[i] = tree_structure[i];
 
         /* set bits to shift per level */
-        int val =(int)log2(*tree_structure[i]);
-        bitshift[i] = &val;
+        bitshift[i] = (int)log2(tree_structure[i]);
 
         /* set page sizes per level */
-        val = pow(2,*((int*)(&tree_structure[i])));
-        entrycount[i] = &val;
+        entrycount[i] = pow(2,tree_structure[i]);
 
     }
     // bitmask = tree_struct;                          // SET BITMAS FOR LEVEL i
