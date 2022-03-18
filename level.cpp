@@ -2,7 +2,7 @@
 #include <iostream>
 #include "level.h"
 
-level::level(int size){
+level::level(int depth, int *size){
 
     /* THE ARRAY SEEMS MORE PRACTICAL TO STORE
         VALUES, LIKE THE DICCTREE, THE INDEX HOLDS
@@ -23,5 +23,5 @@ level::level(int size){
     /* 2^N*4 SIZE ARRAY
        1 HEX CHAR = 4 BITS: 16
     */
-   level_pts = (char*)malloc(sizeof(size));  
+//    level_pts = (char*)malloc(sizeof(size));  
 }

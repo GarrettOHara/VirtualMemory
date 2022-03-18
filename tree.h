@@ -7,20 +7,24 @@
  **/
 #ifndef TREE_H_                                 // INCLUDE GUARD
 #define TREE_H_
+#include "level.h"
 #include <iostream>
-#include <level.h>
 
 class tree {
     private:
-        level *root_ptr;
         int levels;
-        int bitmask[];
-        int bitshift[];
-        int entrycount[];
+        int **bitmask;
+        int **bitshift;
+        int **entrycount;
+        level *root_ptr;
+
+        int extract_vpn();
         
     public:
-        tree(int depth, int level_size);
+        tree(int depth, int *tree_structure[]);
         ~tree();
+
+        void insert();
 };
 
 #endif

@@ -12,12 +12,12 @@
 
 class level {
     private:
+        int depth;
         tree *tree_ptr;
-        char *level_pts[];
-        
+        level *level_pts[];
         
     public:
-        level(int size);
+        level(int depth, int *size);
         ~level();
 };
 
