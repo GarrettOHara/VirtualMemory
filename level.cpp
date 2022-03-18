@@ -2,7 +2,7 @@
 #include <iostream>
 #include "level.h"
 
-level::level(int depth, int *size){
+level::level(int depth, int size){
 
     /* THE ARRAY SEEMS MORE PRACTICAL TO STORE
         VALUES, LIKE THE DICCTREE, THE INDEX HOLDS

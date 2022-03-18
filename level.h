@@ -19,7 +19,7 @@ class level {
         level *level_pts[];
         
     public:
-        level(int depth, int *size);
+        level(int depth, int size);
         ~level();
 };
 
