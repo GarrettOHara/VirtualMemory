@@ -11,8 +11,9 @@
 using namespace std;
 
 int main(int argc, char **argv){
-    // int **array;
-    // tree *t = new tree(5,array);
+    int **array;
+    tree *t = new tree(5,array);
+    cout << "hi" << endl;
     try{
         // if(argc < 3)
         //     throw invalid_argument("You must supply the trace file "
