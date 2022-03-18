@@ -16,7 +16,7 @@ class tree {
         int **bitmask;
         int **bitshift;
         int **entrycount;
-        level *root_ptr;
+        level::level *root_ptr;
 
         int extract_vpn();
         

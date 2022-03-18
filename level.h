@@ -13,7 +13,7 @@
 class level {
     private:
         int depth;
-        tree *tree_ptr;
+        tree::tree *tree_ptr;
         level *level_pts[];
         
     public:
