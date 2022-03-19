@@ -1,0 +1,28 @@
+// vector<int>tree_structure is the list of page table arguments from CLI
+
+unsigned int helper = 1;
+unsigned int buffer = 0x00000001;
+for(unsigned int i = 0; i < depth; i++){
+        
+    /* set bits to shift per level */
+    bitshift[i] = log2(helper);
+
+    unsigned int val = pow(2,tree_structure.at(i));
+
+    /* set bitmask per level */
+    helper*=val;
+    helper--;
+    buffer--;
+    // WRONG SIDE bitmask[i] = buffer ^ helper;         // BITWISE XOR TO ISOLATE BITMASK
+    bitmask[i] = convert_edian(buffer ^ helper);        // BITWISE XOR TO ISOLATE BITMASK
+    helper++;
+    buffer = helper;
+    
+    /* print to std out and test bitmasking */
+    hex_tostring(bitmask[i]);
+    hex_tostring(remove_trailing_zeroes(bitmask[i] & test));
+    
+    /* set page sizes per level */
+    entrycount[i] = val;
+
+}

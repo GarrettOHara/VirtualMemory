@@ -4,6 +4,7 @@
 #include "tree.h"
 #include "level.h"
 
+/* source: https://stackoverflow.com/questions/62227706/how-to-remove-trailing-zeros-from-a-binary-number */
 unsigned int remove_trailing_zeroes(unsigned int x) {
     if (x != 0) {
         while ((x & 1) == 0)
@@ -42,7 +43,7 @@ tree::tree(int depth, std::vector<int>tree_structure){
     unsigned int helper = 1;
     unsigned int buffer = 0x00000001;
     unsigned int test   = 0x19f9cfa0;
-    std::cout<<"\nBITMASK:\t";
+    std::cout<<"\nBITMASK: 0x19f9cfa0\n\t\t";
     for(unsigned int i = 0; i < depth; i++){
         
         /* set bits to shift per level */
@@ -54,11 +55,13 @@ tree::tree(int depth, std::vector<int>tree_structure){
         helper*=val;
         helper--;
         buffer--;
-        // WRONG SIDE bitmask[i] = buffer ^ helper;        // BITWISE XOR TO ISOLATE BITMASK
+        // WRONG SIDE bitmask[i] = buffer ^ helper;         // BITWISE XOR TO ISOLATE BITMASK
         bitmask[i] = convert_edian(buffer ^ helper);        // BITWISE XOR TO ISOLATE BITMASK
         helper++;
         buffer = helper;
         
+        /* test bitmasking */
+        hex_tostring(bitmask[i]);
         hex_tostring(remove_trailing_zeroes(bitmask[i] & test));
        
         /* set page sizes per level */
@@ -70,8 +73,7 @@ tree::tree(int depth, std::vector<int>tree_structure){
 }
 
 unsigned int tree::extract_vpn(unsigned int address, unsigned int bitmask, unsigned int bitshift){
-    unsigned int mask = address & bitmask;
-    return mask >> bitshift;
+    return remove_trailing_zeroes(bitmask & address);
 }
 
 void tree::insert(unsigned int address, unsigned int PFN){
