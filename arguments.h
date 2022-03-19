@@ -19,8 +19,8 @@ namespace arguments {
     int cache_size = DEFAULT;
     char *mode = "";
 
-    void process_flags(int argc, char **argv);
-    void print_args();
+    // void process_flags(int argc, char **argv);
+    // void print_args();
 };
 
 // class arguments {

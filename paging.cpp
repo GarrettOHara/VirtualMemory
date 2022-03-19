@@ -115,7 +115,20 @@ int main(int argc, char **argv){
         }
 
         /* print cli arguments */
-       arguments::print_args();
+        //arguments::print_args();
+        unordered_set<string>::iterator it = arguments::args.begin();
+        cout << "map values:\t";
+        while(it != arguments::args.end()){
+            cout << (*it) << " ";
+            it++;
+        }
+        cout << endl;
+        cout << "bit count:\t" << arguments::bit_count << endl;
+        cout << "level count:\t" << arguments::level_count << endl;
+        cout << "process lines:\t" << arguments::process_lines << endl;
+        cout << "cache size:\t" << arguments::cache_size << endl;
+        cout << "mode:\t\t" << arguments::mode << endl;
+        cout << "\n" << endl;
 
         if(arguments::bit_count > 28)
             throw invalid_argument("Too many bits used in page tables");
