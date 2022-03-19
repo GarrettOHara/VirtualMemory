@@ -1,141 +1,101 @@
+/**
+ * This Program was written by:
+ * 
+ * Garrett O'Hara cssc1136 RedId: 822936303
+ * 
+ * CS 480 | Professor Shen | March 2022
+ **/
 
-#include <iostream>
+/* IMPORTS */
+#include <cstring>
 #include <sstream>
-#include <unordered_set>
-#include <math.h>
+#include <iostream>
 #include <stdexcept>
-#include <vector>
-#include "arguments.h"
 #include "tree.h"
 #include "level.h"
+#include "arguments.h"
+
+/* CONSTANTS */
 #define TRACE_FILE "trace.tr"
 
-
+/* NAMESPACES */
 using namespace std;
+using namespace arguments;
 
-#include <unistd.h>
-#include <cstdlib>
-/* proccess cli argument flags */
-void process_flags(int argc, char **argv){
-    int c;
-    while((c = getopt (argc, argv, "n:c:o"))!= -1){
-        switch(c){
-            case 'n':
-                if(optarg){
-                    arguments::process_lines = atoi(optarg);
-                    arguments::bit_count -= atoi(optarg);
-                    arguments::level_count--;
-                }
-                break;
-            case 'c':
-                if(optarg){
-                    arguments::cache_size = atoi(optarg);
-                    arguments::bit_count -= atoi(optarg);
-                    arguments::level_count--;
-                }
-                break;
-            case 'o':
-                if(optarg)
-                    arguments::mode = optarg;
-                break;
+void proccess_arguments(int argc, char **argv){
+    for(int i = 0; i < argc; i++){
+
+        /* check and process flags */
+        if(strcmp(argv[i],"-n")==0){
+            int val = atoi(argv[i+i]);
+            PROCESS_LINES = val;
+            i++;
+            continue;
+        } else if(strcmp(argv[i],"-c")==0){
+            int val = atoi(argv[i+1]);
+            CACHE_SIZE = val;
+            i++;
+            continue;
+        } else if(strcmp(argv[i], "-o")==0){
+            MODE = argv[i+1];
+            i++;
+            continue;
+
+        /* check and proces trace file */
+        } else if(strcmp(argv[i],TRACE_FILE)==0)
+            TRACE_INDEX = i;
+
+        /* check if argumnet is integer */
+        int val;
+        istringstream iss( argv[i] );
+        if (iss >> val){
+            if(val < 0)
+                throw invalid_argument("Level "+to_string(LEVEL_COUNT)+
+                    " page table must be at least 1 bit");
+            else{
+                BIT_COUNT += atoi(argv[i]);
+                LEVEL_COUNT++;
+            }
         }
     }
 }
 
-void print_args(){
-    /* print values of cli arguments */
-    unordered_set<string>::iterator it = arguments::args.begin();
-    cout << "map values:\t";
-    while(it != arguments::args.end()){
-        cout << (*it) << " ";
-        it++;
-    }
-    cout << endl;
-    cout << "bit count:\t" << arguments::bit_count << endl;
-    cout << "level count:\t" << arguments::level_count << endl;
-    cout << "process lines:\t" << arguments::process_lines << endl;
-    cout << "cache size:\t" << arguments::cache_size << endl;
-    cout << "mode:\t\t" << arguments::mode << endl;
-    cout << "\n" << endl;
+void print_arguments(){
+    cout << "BIT COUNT:\t" << BIT_COUNT << endl;
+    cout << "LEVEL COUNT:\t" << LEVEL_COUNT << endl;
+    cout << "PROCESS LINES:\t" << PROCESS_LINES << endl;
+    cout << "CACHE SIZE: \t" << CACHE_SIZE << endl;
+    cout << "MODE: \t\t" << MODE << endl;
+    cout << "TRACE INDEX:\t" << TRACE_INDEX << endl;
+}
+
+/* check to see if file exists */
+inline bool exists(const string &file_name) {
+    if (FILE *file = fopen(file_name.c_str(), "r")) {
+        fclose(file);
+        return true;
+    } else
+        return false;
 }
 
 int main(int argc, char **argv){
-    
-    vector<int> bit_args;
     try{
         if(argc < 3)
             throw invalid_argument("You must supply the trace file "
                 "and a bit mask.\n");
         
-        /* process cli flags */
-        int c;
-        while((c = getopt (argc, argv, "n:c:o"))!= -1){
-            switch(c){
-                case 'n':
-                    if(optarg){
-                        arguments::process_lines = atoi(optarg);
-                        arguments::bit_count -= atoi(optarg);
-                        arguments::level_count--;
-                    }
-                    break;
-                case 'c':
-                    if(optarg){
-                        arguments::cache_size = atoi(optarg);
-                        arguments::bit_count -= atoi(optarg);
-                        arguments::level_count--;
-                    }
-                    break;
-                case 'o':
-                    if(optarg)
-                        arguments::mode = optarg;
-                    break;
-            }
-        }
-        
-        /* loop through command line arguments */
-        for(int i = 1; i < argc; i++){
+        proccess_arguments(argc,argv);
 
-            /* string stream to read cli args */
-            istringstream iss( argv[i] );
-            
-            /* check if argumnet is integer */
-            int val;
-            if (iss >> val){
-                if(val < 0)
-                    throw invalid_argument("Level "+to_string(arguments::level_count)+
-                        " page table must be at least 1 bit");
-                bit_args.push_back(val);
-                arguments::bit_count+=val;
-                arguments::level_count++;
-
-            /* argument is not integer */
-            } else {
-                arguments::args.insert(argv[i]);
-            }
-        }
-
-        /* print cli arguments */
-        //arguments::print_args();
-        unordered_set<string>::iterator it = arguments::args.begin();
-        cout << "map values:\t";
-        while(it != arguments::args.end()){
-            cout << (*it) << " ";
-            it++;
-        }
-        cout << endl;
-        cout << "bit count:\t" << arguments::bit_count << endl;
-        cout << "level count:\t" << arguments::level_count << endl;
-        cout << "process lines:\t" << arguments::process_lines << endl;
-        cout << "cache size:\t" << arguments::cache_size << endl;
-        cout << "mode:\t\t" << arguments::mode << endl;
-        cout << "\n" << endl;
-
-        if(arguments::bit_count > 28)
+        /* validate page table bit input */
+        if(BIT_COUNT > 28)
             throw invalid_argument("Too many bits used in page tables");
 
-        if(arguments::args.count(TRACE_FILE)==0)
+        /* validate trace/address file before processing */
+        if(TRACE_INDEX==DEFAULT || !exists(argv[TRACE_INDEX]))
             throw invalid_argument("Unable to open <<"+string(TRACE_FILE)+">>");
         
+        print_arguments();
+
     } catch(const char* msg){
         cout << msg << endl;
     } catch (const ios_base::failure& e){
@@ -143,6 +103,5 @@ int main(int argc, char **argv){
     } catch ( const exception& e ) {
         cerr << "ERROR: " << e.what() << endl;
     }
-    
     return 0;
 }

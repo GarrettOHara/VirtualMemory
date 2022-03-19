@@ -9,38 +9,14 @@
 #define ARGUMENTS_H_
 #define DEFAULT -1
 #include <iostream>
-#include <unordered_set>
 
 namespace arguments {
-    std::unordered_set<std::string> args;
-    int bit_count = 0;
-    int level_count = 0;
-    int process_lines = DEFAULT;
-    int cache_size = DEFAULT;
-    char *mode = "";
-
-    // void process_flags(int argc, char **argv);
-    // void print_args();
+    int BIT_COUNT = 0;
+    int LEVEL_COUNT = 0;
+    int PROCESS_LINES = DEFAULT;
+    int CACHE_SIZE = DEFAULT;
+    char *MODE = "";
+    int TRACE_INDEX = DEFAULT;
 };
-
-// class arguments {
-//     private:
-//     public:
-//         arguments();
-//         ~arguments();
-
-//         std::unordered_set<std::string> args;
-//         int bit_count = 0;
-//         int level_count = 0;
-//         int process_lines = DEFAULT;
-//         int cache_size = DEFAULT;
-//         char *mode = "";
-
-//         void process_flags(int argc, char **argv);
-//         void print_args();
-
-// };
-
-
 
 #endif
