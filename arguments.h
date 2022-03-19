@@ -7,10 +7,12 @@
  **/
 #ifndef ARGUMENTS_H_                                 // INCLUDE GUARD
 #define ARGUMENTS_H_
+#include <vector>
 #define DEFAULT -1
 #define DEFAULT_MODE "DEFAULT"
 
 namespace arguments {
+    std::vector<int> BITS;
     int BIT_COUNT = 0;
     int LEVEL_COUNT = 0;
     int PROCESS_LINES = DEFAULT;

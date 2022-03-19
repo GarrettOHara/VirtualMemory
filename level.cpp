@@ -2,7 +2,18 @@
 #include <iostream>
 #include "level.h"
 
-level::level(int depth, int size){
+level::level(int depth, tree *ptr, int size){
+
+    this->depth = depth;
+    this->tree_ptr = ptr;
+    if(depth < this->tree_ptr->levels){
+        this->level_pts = new level*[size];
+        for(int i = 0; i < size; i++)
+            level_pts[i] = nullptr;
+    } else {
+        this->mappings;
+    }
+    
 
     /* THE ARRAY SEEMS MORE PRACTICAL TO STORE
         VALUES, LIKE THE DICCTREE, THE INDEX HOLDS

@@ -7,8 +7,10 @@
  **/
 #ifndef LEVEL_H_                                 // INCLUDE GUARD
 #define LEVEL_H_
-#include "tree.h"
+#include <map>
 #include <iostream>
+#include "tree.h"
+
 
 class tree;
 
@@ -16,10 +18,13 @@ class level {
     private:
         int depth;
         tree *tree_ptr;
-        level *level_pts[];
+        
         
     public:
-        level(int depth, int size);
+        level **level_pts;
+        std::map<unsigned int, unsigned int> 
+            *mappings;
+        level(int depth, tree *ptr, int size);
         ~level();
 };
 

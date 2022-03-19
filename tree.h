@@ -9,24 +9,40 @@
 #define TREE_H_
 #include "level.h"
 #include <iostream>
+#include <vector>
 
 class level;
 
 class tree {
     private:
-        int levels;
-        int *bitmask;
-        int *bitshift;
-        int *entrycount;
-        level *root_ptr;
+        // unsigned int *bitmask;
+        // unsigned int *bitshift;
+        // unsigned int *entrycount;
+        // level *root_ptr;
 
-        int extract_vpn();
+        unsigned int extract_vpn(unsigned int address, 
+                                unsigned int bitmask,
+                                unsigned int bitshift);
+
         
     public:
-        tree(int depth, int *tree_structure);
+        int levels;
+        tree(int depth, std::vector<int>);
         ~tree();
 
-        void insert();
+        unsigned int *bitmask;
+        unsigned int *bitshift;
+        unsigned int *entrycount;
+        level *root_ptr;
+
+
+        //int get_level();
+        // int get_bitmask();
+        // int get_entrycount();
+        // level get_root_ptr();
+
+        void insert(unsigned int address, unsigned int PFN);
+        
 };
 
 #endif

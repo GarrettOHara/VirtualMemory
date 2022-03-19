@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
+
 #include "tree.h"
 #include "level.h"
 #include "arguments.h"
@@ -54,7 +55,9 @@ void proccess_arguments(int argc, char **argv){
                 throw invalid_argument("Level "+to_string(LEVEL_COUNT)+
                     " page table must be at least 1 bit");
             else{
-                BIT_COUNT += atoi(argv[i]);
+                int val = atoi(argv[i]);
+                BIT_COUNT += val;
+                BITS.push_back(val);
                 LEVEL_COUNT++;
             }
         }
@@ -97,18 +100,36 @@ int main(int argc, char **argv){
         
         print_arguments();
 
-        FILE *ifp;	        /* trace file */
-        unsigned long i = 0;  /* instructions processed */
-        p2AddrTr trace;	/* traced address */
+        /* construct page table */
+        tree *page_table = new tree(LEVEL_COUNT, BITS);
+        
+        cout << "BITSHIFT:\t";
+        for(int i = 0; i < BITS.size(); i++){
+            cout << page_table->bitshift[i] << " ";
+        }
+        cout << endl;
+        cout << "ENTRYCOUNT:\t";
+        for(int i = 0; i < BITS.size(); i++){
+            cout << page_table->entrycount[i] << " ";
+        }
+        cout << "\n" << page_table->root_ptr << "\n" << endl;
+        
+
+        FILE *ifp;	                    // TRACE FILE
+        unsigned long i = 0;            // INSTRUCTIONS PROCESSED
+        p2AddrTr trace;	                // TRACED ADDRESSES
 
         if ((ifp = fopen(argv[TRACE_INDEX],"rb")) == NULL) {
             fprintf(stderr,"cannot open %s for reading\n",argv[1]);
             exit(1);
         }
+
+        vector<unsigned int> vpns;
         if(PROCESS_LINES==DEFAULT){
             while (!feof(ifp)) {
                 /* get next address and process */
                 if (NextAddress(ifp, &trace)) {
+                    vpns.push_back(trace.addr);
                     AddressDecoder(&trace, stdout);
                     i++;
                 if ((i % 100000) == 0)
@@ -119,17 +140,25 @@ int main(int argc, char **argv){
             for(int i = 0; i < PROCESS_LINES; i++) {
                 /* get next address and process */
                 if (NextAddress(ifp, &trace)) {
+                    vpns.push_back(trace.addr);
                     AddressDecoder(&trace, stdout);
                     i++;
                 if ((i % 100000) == 0)
                     fprintf(stderr,"%dK samples processed\r", i/100000);
                 }
             }
-        }
-        
-
-        /* clean up and return success */
+        }     
+        /* clean up */
         fclose(ifp);
+
+        unsigned int PFN = 0;
+        cout << "\n" << "VPNS SIZE: " << vpns.size() << endl;
+        for(int i = 0; i < vpns.size(); i++){
+            page_table->insert(vpns.at(i),PFN);
+            PFN++;
+        }
+
+        
 
     } catch(const char* msg){
         cout << msg << endl;
