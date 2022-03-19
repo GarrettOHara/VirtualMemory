@@ -17,8 +17,30 @@ namespace arguments {
     int level_count = 0;
     int process_lines = DEFAULT;
     int cache_size = DEFAULT;
-    char *mode = nullptr;
+    char *mode = "";
 
+    void process_flags(int argc, char **argv);
+    void print_args();
 };
+
+// class arguments {
+//     private:
+//     public:
+//         arguments();
+//         ~arguments();
+
+//         std::unordered_set<std::string> args;
+//         int bit_count = 0;
+//         int level_count = 0;
+//         int process_lines = DEFAULT;
+//         int cache_size = DEFAULT;
+//         char *mode = "";
+
+//         void process_flags(int argc, char **argv);
+//         void print_args();
+
+// };
+
+
 
 #endif

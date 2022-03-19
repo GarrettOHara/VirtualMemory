@@ -5,6 +5,7 @@
     "cstdlib": "c",
     "tracereader.h": "c",
     "stdint.h": "c",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "stdexcept": "cpp"
   }
 }
