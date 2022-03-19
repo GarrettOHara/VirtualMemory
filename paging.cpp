@@ -101,7 +101,7 @@ int main(int argc, char **argv){
         unsigned long i = 0;  /* instructions processed */
         p2AddrTr trace;	/* traced address */
 
-        if ((ifp = fopen(argv[1],"rb")) == NULL) {
+        if ((ifp = fopen(argv[TRACE_INDEX],"rb")) == NULL) {
             fprintf(stderr,"cannot open %s for reading\n",argv[1]);
             exit(1);
         }
