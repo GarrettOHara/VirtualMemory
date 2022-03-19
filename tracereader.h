@@ -38,27 +38,28 @@ typedef enum {
  * See byu_tracereader.c for details.
  */
 int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr);
+void AddressDecoder(p2AddrTr *addr_ptr, FILE *out);
 
 /* reqtype values */
-#define FETCH			0x00	// instruction fetch
-#define MEMREAD			0x01	// memory read
+#define FETCH			    0x00	// instruction fetch
+#define MEMREAD			  0x01	// memory read
 #define MEMREADINV		0x02	// memory read and invalidate
-#define MEMWRITE		0x03	// memory write	
+#define MEMWRITE	  	0x03	// memory write	
 
-#define IOREAD			0x10	// IO read
-#define IOWRITE			0x11	// IO Write
+#define IOREAD			  0x10	// IO read
+#define IOWRITE			  0x11	// IO Write
 
 #define DEFERREPLY		0x20	// deferred reply
-#define INTA			0x21	// interrupt acknowledge
-#define CNTRLAGNTRES		0x22	// central agent response
+#define INTA			    0x21	// interrupt acknowledge
+#define CNTRLAGNTRES	0x22	// central agent response
 #define BRTRACEREC		0x23	// branch trace record
 
-#define SHUTDOWN		0x31	// shutdown
-#define	FLUSH			0x32	// flush
-#define HALT			0x33	// halt
-#define	SYNC			0x34	// sync
-#define FLUSHACK		0x35	// acknowledge flush
+#define SHUTDOWN		  0x31	// shutdown
+#define	FLUSH			    0x32	// flush
+#define HALT			    0x33	// halt
+#define	SYNC			    0x34	// sync
+#define FLUSHACK		  0x35	// acknowledge flush
 #define STOPCLKACK		0x36	// acknowledge stop clock
-#define SMIACK			0x37	// acknowledge SMI mode
+#define SMIACK			  0x37	// acknowledge SMI mode
 
 #endif

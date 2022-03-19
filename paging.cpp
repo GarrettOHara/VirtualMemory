@@ -14,6 +14,7 @@
 #include "tree.h"
 #include "level.h"
 #include "arguments.h"
+#include "tracereader.h"
 
 /* CONSTANTS */
 #define TRACE_FILE "trace.tr"
@@ -95,6 +96,28 @@ int main(int argc, char **argv){
             throw invalid_argument("Unable to open <<"+string(TRACE_FILE)+">>");
         
         print_arguments();
+
+        FILE *ifp;	        /* trace file */
+        unsigned long i = 0;  /* instructions processed */
+        p2AddrTr trace;	/* traced address */
+
+        if ((ifp = fopen(argv[1],"rb")) == NULL) {
+            fprintf(stderr,"cannot open %s for reading\n",argv[1]);
+            exit(1);
+        }
+            
+        while (!feof(ifp)) {
+            /* get next address and process */
+            if (NextAddress(ifp, &trace)) {
+                AddressDecoder(&trace, stdout);
+                i++;
+            if ((i % 100000) == 0)
+                fprintf(stderr,"%dK samples processed\r", i/100000);
+            }
+        }
+
+        /* clean up and return success */
+        fclose(ifp);
 
     } catch(const char* msg){
         cout << msg << endl;
