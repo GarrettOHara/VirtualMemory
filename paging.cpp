@@ -105,16 +105,28 @@ int main(int argc, char **argv){
             fprintf(stderr,"cannot open %s for reading\n",argv[1]);
             exit(1);
         }
-            
-        while (!feof(ifp)) {
-            /* get next address and process */
-            if (NextAddress(ifp, &trace)) {
-                AddressDecoder(&trace, stdout);
-                i++;
-            if ((i % 100000) == 0)
-                fprintf(stderr,"%dK samples processed\r", i/100000);
+        if(PROCESS_LINES==DEFAULT){
+            while (!feof(ifp)) {
+                /* get next address and process */
+                if (NextAddress(ifp, &trace)) {
+                    AddressDecoder(&trace, stdout);
+                    i++;
+                if ((i % 100000) == 0)
+                    fprintf(stderr,"%dK samples processed\r", i/100000);
+                }
+            }
+        } else {
+            for(int i = 0; i < PROCESS_LINES; i++) {
+                /* get next address and process */
+                if (NextAddress(ifp, &trace)) {
+                    AddressDecoder(&trace, stdout);
+                    i++;
+                if ((i % 100000) == 0)
+                    fprintf(stderr,"%dK samples processed\r", i/100000);
+                }
             }
         }
+        
 
         /* clean up and return success */
         fclose(ifp);

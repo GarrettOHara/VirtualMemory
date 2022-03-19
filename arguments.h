@@ -8,14 +8,14 @@
 #ifndef ARGUMENTS_H_                                 // INCLUDE GUARD
 #define ARGUMENTS_H_
 #define DEFAULT -1
-#include <iostream>
+#define DEFAULT_MODE "DEFAULT"
 
 namespace arguments {
     int BIT_COUNT = 0;
     int LEVEL_COUNT = 0;
     int PROCESS_LINES = DEFAULT;
     int CACHE_SIZE = DEFAULT;
-    char *MODE = "";
+    char *MODE = DEFAULT_MODE;
     int TRACE_INDEX = DEFAULT;
 };
 
