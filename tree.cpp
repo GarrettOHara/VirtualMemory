@@ -1,15 +1,29 @@
+#include <stdio.h>                                      // bit swap
+#include <inttypes.h>                                   // bit swap
 #include <math.h>                                       // pow
 #include "tree.h"
 #include "level.h"
+
+unsigned int remove_trailing_zeroes(unsigned int x) {
+    if (x != 0) {
+        while ((x & 1) == 0)
+            x /= 2;
+    }
+    return x;
+}
 
 unsigned int convert_edian(unsigned int num){
   return(((num << 24) & 0xff000000) | ((num << 8) & 0x00ff0000) | 
   ((num >> 8) & 0x0000ff00) | ((num >> 24) & 0x000000ff) );
 }
 
-void printBinaryValue(unsigned int num){
+void hex_tostring(unsigned int x){
+    printf("%#lx\n\t\t",x);
+}
+
+void binary_tostring(unsigned int num){
     if(!num) return;
-    printBinaryValue(num>>1);
+    binary_tostring(num>>1);
     putchar(((num&1 == 1) ? '1' : '0'));
 }
 
@@ -27,6 +41,7 @@ tree::tree(int depth, std::vector<int>tree_structure){
     levels = depth;                                     // SET NUMBER OF LEVELS
     unsigned int helper = 1;
     unsigned int buffer = 0x00000001;
+    unsigned int test   = 0x19f9cfa0;
     std::cout<<"\nBITMASK:\t";
     for(unsigned int i = 0; i < depth; i++){
         
@@ -39,25 +54,13 @@ tree::tree(int depth, std::vector<int>tree_structure){
         helper*=val;
         helper--;
         buffer--;
-        std::cout
-         << "helper: " << helper << " "
-         << "buffer: "<< buffer << " ";
-        bitmask[i] = buffer ^ helper;        // BITWISE XOR TO ISOLATE BITMASK
+        // WRONG SIDE bitmask[i] = buffer ^ helper;        // BITWISE XOR TO ISOLATE BITMASK
+        bitmask[i] = convert_edian(buffer ^ helper);        // BITWISE XOR TO ISOLATE BITMASK
         helper++;
-        buffer = helper;             
+        buffer = helper;
         
-        std::cout
-            <<"value "<<val<<" "
-            <<"bitmask: "<< bitmask[i] << " ";
-            //<<std::endl;
-            printf("\n\t\t%#lx %#lx\n\t\t",(bitmask[i] | 0x000000),helper-1);
-
-        printBinaryValue(bitmask[i]);
-        std::cout << " " << std::endl;
-
-        std::cout << "\t\t";
-        
-
+        hex_tostring(remove_trailing_zeroes(bitmask[i] & test));
+       
         /* set page sizes per level */
         entrycount[i] = val;
 
