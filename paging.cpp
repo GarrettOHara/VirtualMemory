@@ -118,6 +118,7 @@ int main(int argc, char **argv){
         /* construct page table */
         tree *page_table = new tree(LEVEL_COUNT, BITS);
 
+        /* run program in user specified mode */
         if(strcmp(MODE,BITMASK)==0){
             modes::bitmask(page_table, BITS);
             exit(0);
@@ -127,49 +128,14 @@ int main(int argc, char **argv){
         } else if(strcmp(MODE,V2P_PFN)==0){
             modes::vpn_pfn(page_table,argv[TRACE_INDEX],PROCESS_LINES,SUMMARY_DATA);
             exit(0);
+        } else if(strcmp(MODE,V2P)==0){
+            modes::vpn_pa(page_table, argv[TRACE_INDEX], PROCESS_LINES, BITS);
+            exit(0);
         }
 
         print_arguments(page_table);       
 
-        FILE *ifp;	                    // TRACE FILE
-        unsigned long i = 0;            // INSTRUCTIONS PROCESSED
-        p2AddrTr trace;	                // TRACED ADDRESSES
-
-        if ((ifp = fopen(argv[TRACE_INDEX],"rb")) == NULL) {
-            fprintf(stderr,"cannot open %s for reading\n",argv[1]);
-            exit(1);
-        }
-
-        vector<unsigned int> vpns;
-        if(PROCESS_LINES==DEFAULT){
-            while (!feof(ifp)) {
-                /* get next address and process */
-                if (NextAddress(ifp, &trace)) {
-                    vpns.push_back(trace.addr);
-                    AddressDecoder(&trace, stdout);
-                    i++;
-                }
-            }
-        } else {
-            for(int i = 0; i < PROCESS_LINES; i++) {
-                /* get next address and process */
-                if (NextAddress(ifp, &trace)) {
-                    vpns.push_back(trace.addr);
-                    AddressDecoder(&trace, stdout);
-                }
-            }
-        }     
-        /* clean up */
-        fclose(ifp);
-
-        unsigned int PFN = 0;
-        cout << "\n" << "VPNS SIZE: " << vpns.size() << endl;
-        for(int i = 0; i < vpns.size(); i++){
-            page_table->insert(page_table, vpns.at(i),PFN);
-            PFN++;
-        }
-
-        
+              
 
     } catch(const char* msg){
         cout << msg << endl;

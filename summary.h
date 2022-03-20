@@ -29,6 +29,7 @@ namespace modes{
     void bitmask(tree *page_table, std::vector<int>bits);
     void offset(tree *page_table, char *file, int PROCESS_LINES);
     void vpn_pfn(tree *page_table, char *file, int PROCESS_LINES, struct summary SUMMARY_DATA);
+    void vpn_pa(tree *page_table, char *file, int PROCESS_LINES, std::vector<int>bits);
 }
 
 #define BITMASK "bitmasks"                  // CALLS REPORT_BITMASKS
