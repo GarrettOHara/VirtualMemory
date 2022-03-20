@@ -7,9 +7,10 @@
  **/
 #ifndef TREE_H_                                 // INCLUDE GUARD
 #define TREE_H_
+#include "map.h"
 #include "level.h"
-#include <iostream>
 #include <vector>
+#include <iostream>
 
 class level;
 
@@ -21,8 +22,8 @@ class tree {
         // level *root_ptr;
 
         unsigned int extract_vpn(unsigned int address, 
-                                unsigned int bitmask,
-                                unsigned int bitshift);
+                                 unsigned int bitmask);
+        unsigned int manually_set_mask(std::vector<int>);
 
         
     public:

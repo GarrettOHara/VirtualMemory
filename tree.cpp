@@ -1,8 +1,11 @@
-#include <stdio.h>                                      // bit swap
-#include <inttypes.h>                                   // bit swap
-#include <math.h>                                       // pow
+#include <stdio.h>               // bit swap
+#include <sstream>               // bit swap
+#include <math.h>                // pow
+#include "map.h"
 #include "tree.h"
 #include "level.h"
+
+#define ADDRESS_SPACE 32
 
 /* source: https://stackoverflow.com/questions/62227706/how-to-remove-trailing-zeros-from-a-binary-number */
 unsigned int remove_trailing_zeroes(unsigned int x) {
@@ -13,7 +16,7 @@ unsigned int remove_trailing_zeroes(unsigned int x) {
     return x;
 }
 
-unsigned int convert_edian(unsigned int num){
+unsigned int convert_endian(unsigned int num){
   return(((num << 24) & 0xff000000) | ((num << 8) & 0x00ff0000) | 
   ((num >> 8) & 0x0000ff00) | ((num >> 24) & 0x000000ff) );
 }
@@ -41,45 +44,57 @@ tree::tree(int depth, std::vector<int>tree_structure){
 
     levels = depth;                                     // SET NUMBER OF LEVELS
     unsigned int helper = 1;
-    unsigned int buffer = 0x00000001;
-    unsigned int test   = 0x19f9cfa0;
-    std::cout<<"\nBITMASK: 0x19f9cfa0\n\t\t";
+    
     for(unsigned int i = 0; i < depth; i++){
         
         /* set bits to shift per level */
         bitshift[i] = log2(helper);
 
         unsigned int val = pow(2,tree_structure.at(i));
-
-        /* set bitmask per level */
         helper*=val;
-        helper--;
-        buffer--;
-        // WRONG SIDE bitmask[i] = buffer ^ helper;         // BITWISE XOR TO ISOLATE BITMASK
-        bitmask[i] = convert_edian(buffer ^ helper);        // BITWISE XOR TO ISOLATE BITMASK
-        helper++;
-        buffer = helper;
         
-        /* test bitmasking */
-        hex_tostring(bitmask[i]);
-        hex_tostring(remove_trailing_zeroes(bitmask[i] & test));
-       
         /* set page sizes per level */
         entrycount[i] = val;
 
     }
+
+    manually_set_mask(tree_structure);
+    // for(int i = 0; i < tree_structure.size(); i++)
+    //     hex_tostring(bitmask[i]);
     std::cout << std::endl;
     root_ptr = new level(0,this,entrycount[0]);              // SET POINTER TO ROOT NODE
 }
 
-unsigned int tree::extract_vpn(unsigned int address, unsigned int bitmask, unsigned int bitshift){
+unsigned int tree::manually_set_mask(std::vector<int>args){
+    int val;
+    unsigned int helper = 0;
+    std::cout<<"BITMASK:\t";
+    for(int i = 0; i < args.size(); i++){
+        
+        std::string str ="";
+        val = args.at(i);
+        for(int j = 0; j < ADDRESS_SPACE; j++){
+            if(j>=helper && j < helper+val){
+                str+="1";
+            }else
+                str+="0";
+        }
+        unsigned int tmp = std::stoull(str,0,2);
+        std::cout<< "MASK: ";
+        hex_tostring(tmp);
+        helper+=val;
+        this->bitmask[i] = tmp;
+    }
+}
+
+unsigned int tree::extract_vpn(unsigned int address, unsigned int bitmask){
     return remove_trailing_zeroes(bitmask & address);
 }
 
 void tree::insert(unsigned int address, unsigned int PFN){
     level *l = this->root_ptr;
     for(int i = 0; i < levels; i++){
-        unsigned int index = extract_vpn(address, this->bitmask[i], this->bitshift[i]);
+        unsigned int index = extract_vpn(address, this->bitmask[i]);
         std::cout << "INDEX: " <<index<<std::endl;
         /* insert tree node */
         if(i<levels-1){
@@ -95,8 +110,14 @@ void tree::insert(unsigned int address, unsigned int PFN){
 
         /* insert leaf node */
         } else {
+
+            if(l->mappings[index]==nullptr){
+                map* mapping = new map(address,PFN);
+                l->mappings[index] = mapping;
+            }
+
             // if(!l->mappings->count(index)==0)
-            //     l->mappings->insert(index,PFN);
+            //     l->mappings->insert(std::pair<unsigned int, unsigned int>(index,PFN));
 
             std::cout << "INSERTED " << index << " AT LEAF " << i << std::endl;
         }

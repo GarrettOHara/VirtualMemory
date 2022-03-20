@@ -7,9 +7,9 @@
  **/
 #ifndef LEVEL_H_                                 // INCLUDE GUARD
 #define LEVEL_H_
-#include <map>
 #include <iostream>
 #include "tree.h"
+#include "map.h"
 
 
 class tree;
@@ -22,8 +22,9 @@ class level {
         
     public:
         level **level_pts;
-        std::map<unsigned int, unsigned int> 
-            *mappings;
+        map **mappings;
+        // std::map<unsigned int, unsigned int> 
+        //     *mappings;
         level(int depth, tree *ptr, int size);
         ~level();
 };

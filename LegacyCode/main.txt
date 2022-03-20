@@ -1,4 +1,58 @@
 
+/* CONSTRUCTOR */
+tree::tree(int depth, std::vector<int>tree_structure){
+    
+    /*  initialize arrays */
+    unsigned int* bits  {new unsigned int[depth]{}};
+    unsigned int* shift {new unsigned int[depth]{}};
+    unsigned int* entry {new unsigned int[depth]{}};
+    this->bitmask = bits;
+    this->bitshift = shift;
+    this->entrycount = entry;
+
+    levels = depth;                                     // SET NUMBER OF LEVELS
+    unsigned int helper = 0x00000001;
+    // unsigned int buffer = 0x00000000;
+    // unsigned int test   = 0x19f9cfa0;
+    // test = convert_endian(test);
+    // int manual = 0;
+    // std::cout<<"\nBITMASK: ";
+    // hex_tostring(test);
+    
+    for(unsigned int i = 0; i < depth; i++){
+        
+        /* set bits to shift per level */
+        bitshift[i] = log2(helper);
+
+        unsigned int val = pow(2,tree_structure.at(i));
+        
+        /* set bitmask per level */
+        helper*=val;
+        // helper--;
+        // // buffer--;
+        // std::cout<<"buff "<<buffer<< " helper: "<< helper << "\n\t\t";
+        // // WRONG SIDE bitmask[i] = buffer ^ helper;         // BITWISE XOR TO ISOLATE BITMASK
+        // bitmask[i] = buffer ^ helper;        // BITWISE XOR TO ISOLATE BITMASK
+        // buffer = helper;
+        // helper++;
+        
+        // /* test bitmasking */
+        // hex_tostring(bitmask[i]);
+        // hex_tostring(remove_trailing_zeroes(bitmask[i] & test));
+       
+        /* set page sizes per level */
+        entrycount[i] = val;
+
+    }
+
+    manually_set_mask(tree_structure);
+    // for(int i = 0; i < tree_structure.size(); i++)
+    //     hex_tostring(bitmask[i]);
+    std::cout << std::endl;
+    root_ptr = new level(0,this,entrycount[0]);              // SET POINTER TO ROOT NODE
+}
+
+
 #include <iostream>
 #include <sstream>
 #include <unordered_set>
