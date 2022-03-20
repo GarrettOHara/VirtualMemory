@@ -21,9 +21,7 @@ class tree {
         // unsigned int *entrycount;
         // level *root_ptr;
 
-        unsigned int virtual_address_page(unsigned int address, 
-                                 unsigned int bitmask,
-                                 unsigned int bit_shift);
+        
         unsigned int manually_set_mask(std::vector<int>);
 
         
@@ -42,7 +40,9 @@ class tree {
         void insert(tree *page_table,
                 unsigned int address, 
                 unsigned int PFN);
-        
+        unsigned int virtual_address_page(unsigned int address, 
+                unsigned int bitmask,
+                unsigned int bit_shift);
 };
 
 #endif

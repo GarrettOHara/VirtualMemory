@@ -8,6 +8,7 @@
 
 /* IMPORTS */
 #include <iostream>
+
 #include "summary.h"
 #include "tracereader.h"
 #include "output_mode_helpers.h"
@@ -54,37 +55,59 @@ void modes::offset(tree *page_table, char *file, int PROCESS_LINES){
 }
 
 void modes::vpn_pfn(tree *page_table, char *file, int PROCESS_LINES, struct summary SUMMARY_DATA){
-    // FILE *ifp;	                    // TRACE FILE
-    // unsigned long i = 0;            // INSTRUCTIONS PROCESSED
-    // p2AddrTr trace;	                // TRACED ADDRESSES
-    // if ((ifp = fopen(file,"rb")) == NULL) {
-    //     fprintf(stderr,"cannot open %s for reading\n",file);
-    //     exit(1);
-    // }
-    // if(PROCESS_LINES==DEFAULT){
-    //         while (!feof(ifp)) {
-    //             /* get next address and process */
-    //             if (NextAddress(ifp, &trace)) {
-    //                 std::vector<unsigned int>addresses = 
-    //                     page_table->insert(trace.addr, i, SUMMARY_DATA);
-    //                 unsigned int *ptr = &addresses[0];
-    //                 report_pagemap(addresses.size()-1, 
-    //                     ptr, 
-    //                     addresses.at(addresses.size()-1));
-    //                 i++;
-    //             }
-    //         }
-    //     } else {
-    //         for(int i = 0; i < PROCESS_LINES; i++) {
-    //             /* get next address and process */
-    //             if (NextAddress(ifp, &trace)){
-    //                 std::vector<unsigned int>addresses = 
-    //                     page_table->insert(trace.addr, i, SUMMARY_DATA);
-    //                 unsigned int *ptr = &addresses[0];
-    //                 report_pagemap(addresses.size()-1, ptr,addresses.at(addresses.size()-1));
-    //             }
-    //         }
-    //     }     
-    //     /* clean up */
-    //     fclose(ifp);
+    unsigned int PFN = 0;
+    FILE *ifp;	                    // TRACE FILE
+    unsigned long i = 0;            // INSTRUCTIONS PROCESSED
+    p2AddrTr trace;	                // TRACED ADDRESSES
+    if ((ifp = fopen(file,"rb")) == NULL) {
+        fprintf(stderr,"cannot open %s for reading\n",file);
+        exit(1);
+    }
+
+    if(PROCESS_LINES==DEFAULT){
+        while (!feof(ifp)) {
+            /* get next address and process */
+            if (NextAddress(ifp, &trace)) {
+                
+                map *mapping = page_table->page_lookup(page_table,trace.addr);
+                if(mapping==nullptr){
+                    page_table->insert(page_table,trace.addr,PFN);
+                    mapping = page_table->page_lookup(page_table,trace.addr);
+                    PFN++;
+                }
+                unsigned int *ptr = new unsigned int[page_table->levels-1];
+                for(int i = 0; i < page_table->levels; i++){
+                    ptr[i] = page_table->virtual_address_page(trace.addr,
+                        page_table->bitmask[i],
+                        page_table->bitshift[i]);
+                }
+                report_pagemap(page_table->levels, ptr ,mapping->pfn);
+                i++;
+            }
+        }
+    } else {
+        for(int i = 0; i < PROCESS_LINES; i++) {
+            /* get next address and process */
+            if (NextAddress(ifp, &trace)){
+
+                
+                
+                map *mapping = page_table->page_lookup(page_table,trace.addr);
+                if(mapping==nullptr){
+                    page_table->insert(page_table,trace.addr,PFN);
+                    mapping = page_table->page_lookup(page_table,trace.addr);
+                    PFN++;
+                }
+                unsigned int *ptr = new unsigned int[page_table->levels-1];
+                for(int i = 0; i < page_table->levels; i++){
+                    ptr[i] = page_table->virtual_address_page(trace.addr,
+                        page_table->bitmask[i],
+                        page_table->bitshift[i]);
+                }
+                report_pagemap(page_table->levels, ptr ,mapping->pfn);
+            }
+        }
+    }     
+    /* clean up */
+    fclose(ifp);
 }

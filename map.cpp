@@ -1,7 +1,8 @@
 #include "map.h"
 
 /* CONSTRUCTOR */
-map::map(unsigned int key, unsigned int val){
+map::map(unsigned int key, unsigned int vpn, unsigned int pfn){
     this->key = key;
-    this->val = val;
+    this->vpn = vpn;
+    this->pfn = pfn;
 }

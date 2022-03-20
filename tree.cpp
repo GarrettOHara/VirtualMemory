@@ -27,8 +27,11 @@ unsigned int remove_trailing_zeroes(unsigned int x) {
 }
 
 unsigned int convert_endian(unsigned int num){
-  return(((num << 24) & 0xff000000) | ((num << 8) & 0x00ff0000) | 
-  ((num >> 8) & 0x0000ff00) | ((num >> 24) & 0x000000ff) );
+    return(((num << 24) & 0xff000000) 
+          |((num << 8)  & 0x00ff0000) 
+          |((num >> 8)  & 0x0000ff00) 
+          |((num >> 24) & 0x000000ff)
+    );
 }
 
 void hex_tostring(unsigned int x, bool padding){
@@ -44,7 +47,7 @@ void binary_tostring(unsigned int num){
     putchar(((num&1 == 1) ? '1' : '0'));
 }
 
-/* CONSTRUCTOR */
+/* TREE CONSTRUCTOR */
 tree::tree(int depth, std::vector<int>tree_structure){
     
     /*  initialize arrays */
@@ -75,6 +78,7 @@ tree::tree(int depth, std::vector<int>tree_structure){
     root_ptr = new level(0,this,entrycount[0]);     // SET POINTER TO ROOT NODE
 }
 
+/* SET THE MASK FOR EACH BIT */
 unsigned int tree::manually_set_mask(std::vector<int>args){
     int val;
     unsigned int helper = 0;
@@ -95,19 +99,47 @@ unsigned int tree::manually_set_mask(std::vector<int>args){
     }
 }
 
-unsigned int tree::virtual_address_page(unsigned int address, unsigned int bitmask, unsigned int bit_shift){
-    unsigned int tmp_extraction = bitmask & address;
-    return tmp_extraction >> bit_shift;
+unsigned int tree::virtual_address_page(unsigned int address, 
+        unsigned int bitmask, 
+        unsigned int bit_shift){
+
+    return (bitmask & address) >> bit_shift;
 }
 
+/* LOOK FOR MAPPING IN CACHE, THEN WALK TREE TO SEE IF MAPPING IS PRESENT */
 map* tree::page_lookup(tree *page_table, unsigned int vpn){
     level *l = page_table->root_ptr;
     for(int i = 0; i < page_table->levels; i++){
-        unsigned int index = virtual_address_page(vpn, page_table->bitmask[i],page_table->bitshift[i]);
+        unsigned int index = virtual_address_page(vpn,
+            page_table->bitmask[i],
+            page_table->bitshift[i]);
+        
+        /* check if page exists in tree */
+        if(i<page_table->levels-1){
+
+            /* return null if page is not present */
+            if(l->level_pts[index]==nullptr)
+                return nullptr;
+            
+            /* traverse tree */
+            l = l->level_pts[index];
+
+        /* check if mapping is present at leaf node */
+        } else {
+
+            /* mapping is not present, return null */
+            if(l->mappings[index]==nullptr)
+                return nullptr;
+            
+            /* return pointer to mapping */
+            else 
+                return l->mappings[index];
+        }
 
     }
 }
 
+/* INSERT MAPPING INTO PAGE TABLE */
 void tree::insert(tree *page_table, 
         unsigned int address, 
         unsigned int PFN){
@@ -119,7 +151,7 @@ void tree::insert(tree *page_table,
         unsigned int index = virtual_address_page(address,
             page_table->bitmask[i],
             page_table->bitshift[i]);
-        
+        //hex_tostring(index, false);
         /* insert tree node */
         if(i<levels-1){
 
@@ -135,7 +167,7 @@ void tree::insert(tree *page_table,
         /* insert leaf node */
         } else {
             if(l->mappings[index]==nullptr){
-                map* mapping = new map(address,PFN);
+                map* mapping = new map(index,address,PFN);
                 l->mappings[index] = mapping;
             }
         }

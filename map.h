@@ -11,9 +11,10 @@
 class map {
     public:
         unsigned int key;
-        unsigned int val;
+        unsigned int vpn;
+        unsigned int pfn;
         
-        map(unsigned int key, unsigned int val);
+        map(unsigned int key, unsigned int vpn, unsigned int pfn);
         ~map();
 
 };
