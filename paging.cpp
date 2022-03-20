@@ -14,8 +14,10 @@
 
 #include "tree.h"
 #include "level.h"
+#include "summary.h"
 #include "arguments.h"
 #include "tracereader.h"
+#include "output_mode_helpers.h"
 
 /* CONSTANTS */
 #define TRACE_FILE "trace.tr"
@@ -23,6 +25,7 @@
 /* NAMESPACES */
 using namespace std;
 using namespace arguments;
+
 
 void proccess_arguments(int argc, char **argv){
     for(int i = 0; i < argc; i++){
@@ -64,13 +67,23 @@ void proccess_arguments(int argc, char **argv){
     }
 }
 
-void print_arguments(){
+void print_arguments(tree *page_table){
     cout << "BIT COUNT:\t" << BIT_COUNT << endl;
     cout << "LEVEL COUNT:\t" << LEVEL_COUNT << endl;
     cout << "PROCESS LINES:\t" << PROCESS_LINES << endl;
     cout << "CACHE SIZE: \t" << CACHE_SIZE << endl;
     cout << "MODE: \t\t" << MODE << endl;
     cout << "TRACE INDEX:\t" << TRACE_INDEX << endl;
+    cout << "BITSHIFT:\t";
+    for(int i = 0; i < BITS.size(); i++){
+        cout << page_table->bitshift[i] << " ";
+    }
+    cout << endl;
+    cout << "ENTRYCOUNT:\t";
+    for(int i = 0; i < BITS.size(); i++){
+        cout << page_table->entrycount[i] << " ";
+    }
+    cout << "\n" << page_table->root_ptr << "\n" << endl;
 }
 
 /* check to see if file exists */
@@ -84,6 +97,7 @@ inline bool exists(const string &file_name) {
 
 int main(int argc, char **argv){
     try{
+        struct summary SUMMARY_DATA;
         if(argc < 3)
             throw invalid_argument("You must supply the trace file "
                 "and a bit mask.\n");
@@ -101,22 +115,21 @@ int main(int argc, char **argv){
         if(MODE==NULL)
             MODE="DEFAULT";
         
-        print_arguments();
-
         /* construct page table */
         tree *page_table = new tree(LEVEL_COUNT, BITS);
-        
-        cout << "BITSHIFT:\t";
-        for(int i = 0; i < BITS.size(); i++){
-            cout << page_table->bitshift[i] << " ";
+
+        if(strcmp(MODE,BITMASK)==0){
+            modes::bitmask(page_table, BITS);
+            exit(0);
+        } else if(strcmp(MODE,OFFSET)==0){
+            modes::offset(page_table, argv[TRACE_INDEX], PROCESS_LINES);
+            exit(0);
+        } else if(strcmp(MODE,V2P_PFN)==0){
+            modes::vpn_pfn(page_table,argv[TRACE_INDEX],PROCESS_LINES,SUMMARY_DATA);
+            exit(0);
         }
-        cout << endl;
-        cout << "ENTRYCOUNT:\t";
-        for(int i = 0; i < BITS.size(); i++){
-            cout << page_table->entrycount[i] << " ";
-        }
-        cout << "\n" << page_table->root_ptr << "\n" << endl;
-        
+
+        print_arguments(page_table);       
 
         FILE *ifp;	                    // TRACE FILE
         unsigned long i = 0;            // INSTRUCTIONS PROCESSED
@@ -135,8 +148,6 @@ int main(int argc, char **argv){
                     vpns.push_back(trace.addr);
                     AddressDecoder(&trace, stdout);
                     i++;
-                if ((i % 100000) == 0)
-                    fprintf(stderr,"%dK samples processed\r", i/100000);
                 }
             }
         } else {
@@ -145,9 +156,6 @@ int main(int argc, char **argv){
                 if (NextAddress(ifp, &trace)) {
                     vpns.push_back(trace.addr);
                     AddressDecoder(&trace, stdout);
-                    i++;
-                if ((i % 100000) == 0)
-                    fprintf(stderr,"%dK samples processed\r", i/100000);
                 }
             }
         }     
@@ -157,7 +165,7 @@ int main(int argc, char **argv){
         unsigned int PFN = 0;
         cout << "\n" << "VPNS SIZE: " << vpns.size() << endl;
         for(int i = 0; i < vpns.size(); i++){
-            page_table->insert(vpns.at(i),PFN);
+            page_table->insert(page_table, vpns.at(i),PFN);
             PFN++;
         }
 

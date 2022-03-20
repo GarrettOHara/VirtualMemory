@@ -20,7 +20,7 @@ level::level(int depth, tree *ptr, int size){
         level_pts = new level*[size];
         for(int i = 0; i < size; i++)
             level_pts[i] = nullptr;
-
+    
     /* leaf node mappings */
     } else {
         mappings = new map*[size];

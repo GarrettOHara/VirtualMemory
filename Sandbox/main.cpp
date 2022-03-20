@@ -17,26 +17,28 @@ void binary_tostring(unsigned int num){
     putchar(((num&1 == 1) ? '1' : '0'));
 }
 int main(int argc, char **argv){
-    int val;
-    int helper = 0;
-    for(int i = 1; i < argc; i++){
-        std::string str = "";
-        std::istringstream iss( argv[i] );
-        iss>>val;
-        std::cout<<"VAL: "<<val<<" "<<helper<<std::endl;
-        for(int j = 0; j < 32; j++){
+    // int val;
+    // int helper = 0;
+    // for(int i = 1; i < argc; i++){
+    //     std::string str = "";
+    //     std::istringstream iss( argv[i] );
+    //     iss>>val;
+    //     std::cout<<"VAL: "<<val<<" "<<helper<<std::endl;
+    //     for(int j = 0; j < 32; j++){
             
-            if(j>=helper && j < helper+val){
-                str+="1";
-            }else
-                str+="0";
-        }
-        unsigned int tmp = std::stoull(str,0,2);
-        hex_tostring(tmp);
-        helper+=val;
-        std::cout<<tmp<<std::endl;
-    }
-    
+    //         if(j>=helper && j < helper+val){
+    //             str+="1";
+    //         }else
+    //             str+="0";
+    //     }
+    //     unsigned int tmp = std::stoull(str,0,2);
+    //     hex_tostring(tmp);
+    //     helper+=val;
+    //     std::cout<<tmp<<std::endl;
+    // }
+    unsigned int a = 0xfff00000;
+    unsigned int b = 0x41f760;
+    hex_tostring(a&b);
     // for(int i = 0; i < 13;i++){
         
     //     unsigned int val = pow(2,i)-1;

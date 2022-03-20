@@ -75,24 +75,24 @@ void report_summary(unsigned int page_size,
         unsigned int cacheHits,
         unsigned int pageTableHits,
         unsigned int addresses, unsigned int frames_used,
-		    unsigned int bytes) {
-  unsigned int misses;
-  double hit_percent;
+		unsigned int bytes) {
+            unsigned int misses;
+            double hit_percent;
 
-  printf("Page size: %d bytes\n", page_size);
-  /* Compute misses (page faults) and hit percentage */
-  int totalhits = cacheHits + pageTableHits;
-  misses = addresses - totalhits;
-  hit_percent = (double) (totalhits) / (double) addresses * 100.0;
-  printf("Addresses processed: %d\n", addresses);
-  printf("Cache hits: %d, Page hits: %d, Total hits: %d, Misses: %d\n", 
-         cacheHits, pageTableHits, totalhits, misses);
-  printf("Total hit percentage: %.2f%%, miss percentage: %.2f%%\n", 
-         hit_percent, 100 - hit_percent);
-  printf("Frames allocated: %d\n", frames_used);
-  printf("Bytes used:  %d\n", bytes);
+            printf("Page size: %d bytes\n", page_size);
+            /* Compute misses (page faults) and hit percentage */
+            int totalhits = cacheHits + pageTableHits;
+            misses = addresses - totalhits;
+            hit_percent = (double) (totalhits) / (double) addresses * 100.0;
+            printf("Addresses processed: %d\n", addresses);
+            printf("Cache hits: %d, Page hits: %d, Total hits: %d, Misses: %d\n", 
+                    cacheHits, pageTableHits, totalhits, misses);
+            printf("Total hit percentage: %.2f%%, miss percentage: %.2f%%\n", 
+                    hit_percent, 100 - hit_percent);
+            printf("Frames allocated: %d\n", frames_used);
+            printf("Bytes used:  %d\n", bytes);
 
-  fflush(stdout);
+            fflush(stdout);
 }
 
 /*

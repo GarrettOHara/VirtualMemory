@@ -21,28 +21,27 @@ class tree {
         // unsigned int *entrycount;
         // level *root_ptr;
 
-        unsigned int extract_vpn(unsigned int address, 
-                                 unsigned int bitmask);
+        unsigned int virtual_address_page(unsigned int address, 
+                                 unsigned int bitmask,
+                                 unsigned int bit_shift);
         unsigned int manually_set_mask(std::vector<int>);
 
         
     public:
-        int levels;
+       
         tree(int depth, std::vector<int>);
         ~tree();
 
+        int levels;
         unsigned int *bitmask;
         unsigned int *bitshift;
         unsigned int *entrycount;
         level *root_ptr;
 
-
-        //int get_level();
-        // int get_bitmask();
-        // int get_entrycount();
-        // level get_root_ptr();
-
-        void insert(unsigned int address, unsigned int PFN);
+        map* page_lookup(tree *page_table, unsigned int vpn);
+        void insert(tree *page_table,
+                unsigned int address, 
+                unsigned int PFN);
         
 };
 

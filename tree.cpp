@@ -8,9 +8,11 @@
 #include <math.h>                // pow
 #include <stdio.h>               // bit swap
 #include <sstream>               // bit swap
+#include <vector>                // insert return
 #include "map.h"
 #include "tree.h"
 #include "level.h"
+#include "summary.h"
 
 #define ADDRESS_SPACE 32
 
@@ -55,11 +57,12 @@ tree::tree(int depth, std::vector<int>tree_structure){
 
     levels = depth;                                 // SET NUMBER OF LEVELS
     unsigned int helper = 1;
-    
+    int shift_sum = 0;
     for(unsigned int i = 0; i < depth; i++){
         
         /* set bits to shift per level */
-        bitshift[i] = log2(helper);
+        shift_sum += tree_structure.at(i);
+        bitshift[i] = ADDRESS_SPACE - shift_sum;
 
         unsigned int val = pow(2,tree_structure.at(i));
         helper*=val;
@@ -68,16 +71,13 @@ tree::tree(int depth, std::vector<int>tree_structure){
         entrycount[i] = val;
 
     }
-
     manually_set_mask(tree_structure);
-    std::cout << std::endl;
     root_ptr = new level(0,this,entrycount[0]);     // SET POINTER TO ROOT NODE
 }
 
 unsigned int tree::manually_set_mask(std::vector<int>args){
     int val;
     unsigned int helper = 0;
-    std::cout<<"BITMASK:\t";
     for(int i = 0; i < args.size(); i++){
         
         std::string str ="";
@@ -88,50 +88,56 @@ unsigned int tree::manually_set_mask(std::vector<int>args){
             }else
                 str+="0";
         }
+
         unsigned int tmp = std::stoull(str,0,2);
-        std::cout<< "MASK: ";
-        hex_tostring(tmp,true);
         helper+=val;
         this->bitmask[i] = tmp;
     }
 }
 
-unsigned int tree::extract_vpn(unsigned int address, unsigned int bitmask){
-    return remove_trailing_zeroes(bitmask & address);
+unsigned int tree::virtual_address_page(unsigned int address, unsigned int bitmask, unsigned int bit_shift){
+    unsigned int tmp_extraction = bitmask & address;
+    return tmp_extraction >> bit_shift;
 }
 
-void tree::insert(unsigned int address, unsigned int PFN){
-    level *l = this->root_ptr;
-    for(int i = 0; i < levels; i++){
-        unsigned int index = extract_vpn(address, this->bitmask[i]);
+map* tree::page_lookup(tree *page_table, unsigned int vpn){
+    level *l = page_table->root_ptr;
+    for(int i = 0; i < page_table->levels; i++){
+        unsigned int index = virtual_address_page(vpn, page_table->bitmask[i],page_table->bitshift[i]);
+
+    }
+}
+
+void tree::insert(tree *page_table, 
+        unsigned int address, 
+        unsigned int PFN){
+
+    level *l = page_table->root_ptr;
+
+    for(int i = 0; i < page_table->levels; i++){
+        
+        unsigned int index = virtual_address_page(address,
+            page_table->bitmask[i],
+            page_table->bitshift[i]);
+        
         /* insert tree node */
         if(i<levels-1){
 
             /* create new level if null */
-            if(l->level_pts[index]==nullptr)
-                l->level_pts[index] = new level(i+1,this,entrycount[i+1]);
+            if(l->level_pts[index]==nullptr){
+                level *tmp = new level(i+1,page_table,entrycount[i+1]);
+                l->level_pts[index] = tmp;
+            }
 
             /* traverse tree */
             l = l->level_pts[index];
 
-            //std::cout << "INSERTED " << index << " AT LEVEL " << i << std::endl;
-
         /* insert leaf node */
         } else {
-
             if(l->mappings[index]==nullptr){
                 map* mapping = new map(address,PFN);
                 l->mappings[index] = mapping;
             }
-
-            // if(!l->mappings->count(index)==0)
-            //     l->mappings->insert(std::pair<unsigned int, unsigned int>
-            //                          (index,PFN));
-
-            hex_tostring(address,false);
-
-            std::cout<<PFN<<std::endl;
         }
     }
 }
-
