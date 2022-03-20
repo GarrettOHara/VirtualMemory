@@ -13,12 +13,13 @@
 
 namespace arguments {
     std::vector<int> BITS;
-    int BIT_COUNT = 0;
+    int BIT_COUNT   = 0;
     int LEVEL_COUNT = 0;
     int PROCESS_LINES = DEFAULT;
-    int CACHE_SIZE = DEFAULT;
-    char *MODE = DEFAULT_MODE;
-    int TRACE_INDEX = DEFAULT;
+    int CACHE_SIZE    = DEFAULT;
+    int TRACE_INDEX   = DEFAULT;
+    char *MODE;
+
 };
 
 #endif

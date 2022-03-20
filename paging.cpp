@@ -98,6 +98,9 @@ int main(int argc, char **argv){
         if(TRACE_INDEX==DEFAULT || !exists(argv[TRACE_INDEX]))
             throw invalid_argument("Unable to open <<"+string(TRACE_FILE)+">>");
         
+        if(MODE==NULL)
+            MODE="DEFAULT";
+        
         print_arguments();
 
         /* construct page table */

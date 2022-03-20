@@ -1,13 +1,21 @@
+/**
+ * This Program was written by:
+ * 
+ * Garrett O'Hara cssc1136 RedId: 822936303
+ * 
+ * CS 480 | Professor Shen | March 2022
+ **/
+#include <math.h>                // pow
 #include <stdio.h>               // bit swap
 #include <sstream>               // bit swap
-#include <math.h>                // pow
 #include "map.h"
 #include "tree.h"
 #include "level.h"
 
 #define ADDRESS_SPACE 32
 
-/* source: https://stackoverflow.com/questions/62227706/how-to-remove-trailing-zeros-from-a-binary-number */
+/* source: https://stackoverflow.com/questions/62227706/how-to-remove-
+trailing-zeros-from-a-binary-number */
 unsigned int remove_trailing_zeroes(unsigned int x) {
     if (x != 0) {
         while ((x & 1) == 0)
@@ -21,8 +29,11 @@ unsigned int convert_endian(unsigned int num){
   ((num >> 8) & 0x0000ff00) | ((num >> 24) & 0x000000ff) );
 }
 
-void hex_tostring(unsigned int x){
-    printf("%#lx\n\t\t",x);
+void hex_tostring(unsigned int x, bool padding){
+    if(padding)
+        printf("%#lx\n\t\t",x);
+    else 
+        printf("%#lx ",x);
 }
 
 void binary_tostring(unsigned int num){
@@ -42,7 +53,7 @@ tree::tree(int depth, std::vector<int>tree_structure){
     this->bitshift = shift;
     this->entrycount = entry;
 
-    levels = depth;                                     // SET NUMBER OF LEVELS
+    levels = depth;                                 // SET NUMBER OF LEVELS
     unsigned int helper = 1;
     
     for(unsigned int i = 0; i < depth; i++){
@@ -59,10 +70,8 @@ tree::tree(int depth, std::vector<int>tree_structure){
     }
 
     manually_set_mask(tree_structure);
-    // for(int i = 0; i < tree_structure.size(); i++)
-    //     hex_tostring(bitmask[i]);
     std::cout << std::endl;
-    root_ptr = new level(0,this,entrycount[0]);              // SET POINTER TO ROOT NODE
+    root_ptr = new level(0,this,entrycount[0]);     // SET POINTER TO ROOT NODE
 }
 
 unsigned int tree::manually_set_mask(std::vector<int>args){
@@ -81,7 +90,7 @@ unsigned int tree::manually_set_mask(std::vector<int>args){
         }
         unsigned int tmp = std::stoull(str,0,2);
         std::cout<< "MASK: ";
-        hex_tostring(tmp);
+        hex_tostring(tmp,true);
         helper+=val;
         this->bitmask[i] = tmp;
     }
@@ -95,7 +104,6 @@ void tree::insert(unsigned int address, unsigned int PFN){
     level *l = this->root_ptr;
     for(int i = 0; i < levels; i++){
         unsigned int index = extract_vpn(address, this->bitmask[i]);
-        std::cout << "INDEX: " <<index<<std::endl;
         /* insert tree node */
         if(i<levels-1){
 
@@ -106,7 +114,7 @@ void tree::insert(unsigned int address, unsigned int PFN){
             /* traverse tree */
             l = l->level_pts[index];
 
-            std::cout << "INSERTED " << index << " AT LEVEL " << i << std::endl;
+            //std::cout << "INSERTED " << index << " AT LEVEL " << i << std::endl;
 
         /* insert leaf node */
         } else {
@@ -117,9 +125,12 @@ void tree::insert(unsigned int address, unsigned int PFN){
             }
 
             // if(!l->mappings->count(index)==0)
-            //     l->mappings->insert(std::pair<unsigned int, unsigned int>(index,PFN));
+            //     l->mappings->insert(std::pair<unsigned int, unsigned int>
+            //                          (index,PFN));
 
-            std::cout << "INSERTED " << index << " AT LEAF " << i << std::endl;
+            hex_tostring(address,false);
+
+            std::cout<<PFN<<std::endl;
         }
     }
 }

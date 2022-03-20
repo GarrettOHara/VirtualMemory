@@ -11,7 +11,6 @@
 #include "tree.h"
 #include "map.h"
 
-
 class tree;
 
 class level {
