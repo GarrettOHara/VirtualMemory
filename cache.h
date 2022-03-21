@@ -25,7 +25,7 @@ class cache {
         std::map<unsigned int, mymap*> lookup;
         std::unordered_map<unsigned int, unsigned int>LRU;
 
-        void insert(unsigned int vpn, unsigned int virtual_time, unsigned int address, unsigned int pfn);
+        mymap* insert(unsigned int vpn, unsigned int virtual_time, unsigned int address, unsigned int pfn);
         mymap* contains(unsigned int vpn);
         void cache_tostring();
         void update(unsigned int virtual_time, unsigned int vpn);

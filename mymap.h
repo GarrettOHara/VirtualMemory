@@ -16,14 +16,11 @@ class mymap {
         bool tlb_cache_hit;
         bool page_table_hit;
         
-        // mymap(unsigned int key, 
-        //     unsigned int vpn, 
-        //     unsigned int pfn, 
-        //     bool tlb_cache_hit, 
-        //     bool page_table_hit);
         mymap(unsigned int key, 
             unsigned int vpn, 
-            unsigned int pfn);
+            unsigned int pfn, 
+            bool tlb_cache_hit, 
+            bool page_table_hit);
         ~mymap();
 
 };

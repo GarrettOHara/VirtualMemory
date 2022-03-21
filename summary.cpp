@@ -221,19 +221,27 @@ void modes::vpn_tlb(tree *page_table, char *file, unsigned int PROCESS_LINES, st
                 /* extract offset for MMU converstion */
                 unsigned int offset = (trace.addr & BUFFER);
 
+                // if(page_table->cache_ptr == nullptr)
+                //     std::cout<<"NULL POINTER"<<std::endl;
+                // else 
+                //     std::cout<<page_table->cache_ptr<<"\n"<<std::endl;
+                
+
                 /* lookup page in TBL cache and pagetable */
+                /* return MISS MISS, or MISS HIT */
                 mymap *mymap = page_table->page_lookup(page_table,trace.addr,i);
                 
                 /* TBL cache miss and pagetable miss, demand paging */
+                /* RETURN MISS MISS*/
                 if(mymap==nullptr){
-                    page_table->insert(page_table,trace.addr,PFN);
-                    mymap = page_table->page_lookup(page_table,trace.addr,i);
+                    mymap = page_table->insert(page_table,i,trace.addr,PFN);
+                    //mymap = page_table->page_lookup(page_table,trace.addr,i);
                     PFN++;
                 }
 
                 /* MMU calculation for physical address */
                 unsigned int physical_address = mymap->pfn*page_size+offset;
-                //report_v2pUsingTLB_PTwalk(trace.addr,physical_address);                
+                report_v2pUsingTLB_PTwalk(trace.addr,physical_address,mymap->tlb_cache_hit,mymap->page_table_hit);                
             }
         }
     }

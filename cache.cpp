@@ -14,6 +14,13 @@
 
 #define LRU_SIZE 10
 
+void penis(unsigned int x, bool padding){
+    if(padding)
+        printf("%#lx\n",x);
+    else 
+        printf("%#lx ",x);
+}
+
 /* CONSTRUCTOR */
 cache::cache(int size){
     this->size = size;
@@ -23,18 +30,26 @@ cache::cache(int size){
 
 void cache::cache_tostring(){
     for(const auto &lookup_iter : lookup){
-        std::cout << lookup_iter.first << " " << 
-        lookup_iter.second->key << " " <<
-        lookup_iter.second->pfn << " " <<
-        lookup_iter.second->pfn << std::endl;
+        penis(lookup_iter.first,false);
+        penis(lookup_iter.second->key,false);
+        penis(lookup_iter.second->pfn,false);
+        penis(lookup_iter.second->pfn,true);
     }
 }
 
 mymap* cache::contains(unsigned int vpn){
+    /* TLB cache MISS */
     if(lookup.count(vpn)==0)
         return nullptr;
-    else 
-        return lookup[vpn];
+    
+    /* TBL cache HIT */
+    else{
+        std::cout<<"HIT"<<std::endl;
+        mymap *tmpmap = lookup[vpn];
+        tmpmap->tlb_cache_hit = true;
+        return tmpmap;
+    }
+        
 }
 
 void cache::update(unsigned int virtual_time,
@@ -56,49 +71,56 @@ void cache::update(unsigned int virtual_time,
     LRU.emplace(virtual_time,vpn);
 }
 
-void cache::insert(unsigned int vpn, 
+mymap* cache::insert(unsigned int vpn, 
     unsigned int virtual_time, 
     unsigned int address, 
     unsigned int pfn){
+
+    /* room in cache available, no need for replacement */
+    if(this->lookup.size() < this->size){
+        mymap *mymap = new typename mymap::mymap(virtual_time,address,pfn,false,true);
+        this->lookup[vpn]=mymap;
+        this->LRU[virtual_time]=vpn;
     
-    mymap *tmpmap = this->contains(vpn);
+        /* update LRU */
+        this->update(virtual_time, vpn);
 
-    /* mapping not present, insert into cache and update LRU */
-    if(tmpmap == nullptr){
+        return mymap;
 
-        /* room in cache available, no need for replacement */
-        if(this->lookup.size() < this->size){
-            mymap *mymap = new typename mymap::mymap(virtual_time,address,pfn);
-            this->lookup[vpn]=mymap;
-            this->LRU[virtual_time]=vpn;
-        
-            /* update LRU */
-            this->update(virtual_time, vpn);
+    /* no more room in cache, replacement algorithm */
+    } else {
+        cache_tostring();
+        for(const auto &lookup_mapping : lookup){
+            mymap *tmp_mapping = lookup_mapping.second;
+            bool found = false;
+            for(const auto &lookup_LRU : LRU){
+                unsigned int lru_vpn = lookup_LRU.second;
+                
+                penis(tmp_mapping->vpn,false);
+                penis(lookup_LRU.second,false);
+                
 
-        /* no more room in cache, replacement algorithm */
-        } else {
-            for(const auto &lookup_mapping : lookup){
-                mymap *tmp_mapping = lookup_mapping.second;
-                bool found = false;
-                for(const auto &lookup_LRU : LRU){
-                    unsigned int lru_vitrual_time = lookup_LRU.second;
+                if(tmp_mapping->vpn == lru_vpn)
+                    found = true;                
+            }
 
-                    if(tmp_mapping->vpn == lru_vitrual_time)
-                        found = true;
-                }
-
-                /* mapping was not present in working set (LRU) -> victim */
-                if(!found){
-                    lookup.erase(lookup_mapping.first);
-                    
-                    /* recurssive call since cache has room */
-                    insert(vpn,virtual_time,address,pfn);
-                }
+            /* mapping was not present in working set (LRU) -> victim */
+            if(!found){
+                lookup.erase(lookup_mapping.first);
+                
+                /* recurssive call since cache has room, break loop */
+                insert(vpn,virtual_time,address,pfn);
             }
         }
+    }
+
+    //mymap *tmpmap = this->contains(vpn);
+
+    /* mapping not present, insert into cache and update LRU */
+    //if(tmpmap == nullptr){
     
     /* mapping is present, update LRU */
-    } else {
-        this->update(virtual_time, vpn);
-    }
+    // } else {
+    //     this->update(virtual_time, vpn);
+    // }
 }

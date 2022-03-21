@@ -17,7 +17,7 @@
 #include "summary.h"
 
 #define ADDRESS_SPACE 32
-#define CACHE_DEFAULT 0
+#define CACHE_DEFAULT -1
 
 /* source: https://stackoverflow.com/questions/62227706/how-to-remove-
 trailing-zeros-from-a-binary-number */
@@ -81,7 +81,9 @@ tree::tree(int depth, std::vector<int>tree_structure, int cache_size){
     manually_set_mask(tree_structure);
     root_ptr = new level(0,this,entrycount[0]);     // SET POINTER TO ROOT NODE
 
-    if(cache_size != CACHE_DEFAULT)
+    if(cache_size == CACHE_DEFAULT)
+        cache_ptr = nullptr;
+    else
         cache_ptr = new cache(cache_size);       // SET POINTER TO CACHE
 }
 
@@ -102,7 +104,7 @@ unsigned int tree::manually_set_mask(std::vector<int>args){
 
         unsigned int tmp = std::stoull(str,0,2);
         helper+=val;
-        this->fullbitmask ^ tmp;
+        this->fullbitmask = fullbitmask ^ tmp;
         this->bitmask[i] = tmp;
     }
 }
@@ -114,50 +116,66 @@ unsigned int tree::virtual_address_page(unsigned int address,
     return (bitmask & address) >> bit_shift;
 }
 
-/* LOOK FOR MAPPING IN CACHE, THEN WALK TREE TO SEE IF MAPPING IS PRESENT */
-mymap* tree::page_lookup(tree *page_table, unsigned int vpn, unsigned int virtual_time){
+/* LOOK FOR MAPPING IN CACHE, THEN WALK TREE TO 
+   SEE IF MAPPING IS PRESENT */
+mymap* tree::page_lookup(tree *page_table, 
+        unsigned int vpn, 
+        unsigned int virtual_time){
 
     unsigned int VPN = vpn & fullbitmask;
 
-    mymap *newmapping = page_table->cache_ptr->contains(VPN);
-
-    /* HIT: value found in the cache_ptr, update LRU */
-    if(newmapping != nullptr){
-        page_table->cache_ptr->update(virtual_time,VPN);
-        return newmapping;
-        //page_table->cache_ptr->insert(VPN,virtual_time,vpn,PFN);
-    }
-
-    /* MISS: page table walk */
-    level *l = page_table->root_ptr;
+    /* cache is not present, use regular lookup */
+    if(page_table->cache_ptr==nullptr){
+        return page_lookup(page_table, vpn);
     
-    for(int i = 0; i < page_table->levels; i++){
-        unsigned int index = virtual_address_page(vpn,
-            page_table->bitmask[i],
-            page_table->bitshift[i]);
+    /* cache is present, leverage it */
+    } else {
+        mymap *newmapping = page_table->cache_ptr->contains(VPN);
+        std::cout<<"RETUNED FROM LOOKUP"<<std::endl;
+        /* HIT: value found in the cache_ptr, update LRU */
+        if(newmapping != nullptr){
+            std::cout<<"MAPPING NOT NULL "<<std::endl;
+            page_table->cache_ptr->update(virtual_time,VPN);
+            return newmapping;
+        }
+        std::cout<<"CACHE MISS PAGE TABLE WALK"<<std::endl;
+        /* MISS: page table walk */
+        level *l = page_table->root_ptr;
         
-        /* check if page exists in tree */
-        if(i<page_table->levels-1){
-
-            /* return null if page is not present */
-            if(l->level_pts[index]==nullptr)
-                return nullptr;
+        for(int i = 0; i < page_table->levels; i++){
+            unsigned int index = virtual_address_page(vpn,
+                page_table->bitmask[i],
+                page_table->bitshift[i]);
             
-            /* traverse tree */
-            l = l->level_pts[index];
+            /* check if page exists in tree */
+            if(i<page_table->levels-1){
 
-        /* check if mapping is present at leaf node */
-        } else {
+                std::cout<<"WALK "<<i<<std::endl;
+                /* return null if page is not present */
+                if(l->level_pts[index]==nullptr)
+                    return nullptr;
+                
+                /* traverse tree */
+                l = l->level_pts[index];
 
-            /* PAGE TABLE MISS: mapping is not present, return null, demand paging */
-            if(l->mappings[index]==nullptr)
-                return nullptr;
-            
-            /* PAGE TABLE HIT: return pointer to mapping */
-            else 
-                return l->mappings[index];
+            /* check if mapping is present at leaf node */
+            } else {
+
+                /* PAGE TABLE MISS: mapping is not present, 
+                   return null, demand paging */
+                if(l->mappings[index]==nullptr)
+                    return nullptr;
+                
+                /* PAGE TABLE HIT: return pointer to mapping */
+                else{
+                    return l->mappings[index];
+                }
+                    
+            }
         }
     }
+
+    
 }
 
 
@@ -188,8 +206,10 @@ mymap* tree::page_lookup(tree *page_table, unsigned int vpn){
                 return nullptr;
             
             /* return pointer to mapping */
-            else 
+            else {
+                l->mappings[index]->page_table_hit=true;
                 return l->mappings[index];
+            }
         }
 
     }
@@ -231,7 +251,7 @@ void tree::insert(tree *page_table,
         /* insert leaf node */
         } else {
             if(l->mappings[index]==nullptr){
-                mymap* mymap = new typename mymap::mymap(index,address,PFN);
+                mymap* mymap = new typename mymap::mymap(index,address,PFN,false,false);
                 l->mappings[index] = mymap;
             }
         }
@@ -239,7 +259,7 @@ void tree::insert(tree *page_table,
 }
 
 
-void tree::insert(tree *page_table, 
+mymap* tree::insert(tree *page_table, 
         unsigned int virtual_time,
         unsigned int address, 
         unsigned int PFN){
@@ -266,22 +286,34 @@ void tree::insert(tree *page_table,
                 /* traverse tree */
                 l = l->level_pts[index];
 
-            /* insert leaf node */
+            /* check leaf node */
             } else {
+
+                /* PAGE TABLE MISS insert leaf node */
                 if(l->mappings[index]==nullptr){
-                    mymap* mymap = new typename mymap::mymap(index,address,PFN);
+                    mymap* mymap = new typename mymap::mymap(index,address,PFN,false,false);
                     l->mappings[index] = mymap;
+                    return mymap;
+                
+                /* PAGE TABLE HIT */
+                } else {
+                    l->mappings[index]->page_table_hit=true;
+                    return l->mappings[index];
                 }
             }
         }
     } else {
-        unsigned int VPN = address & remove_offset(page_table);
+        // std::cout<<"INSERTING TO CACHE "<<std::endl;
+
+        unsigned int VPN = address & fullbitmask;
 
         mymap *newmapping = page_table->cache_ptr->contains(VPN);
 
         /* value is not in the cache_ptr, walk page table and insert */
         if(newmapping == nullptr){
-            page_table->cache_ptr->insert(VPN,virtual_time,address,PFN);
+            return page_table->cache_ptr->insert(VPN,virtual_time,address,PFN);
         }
+
+        return newmapping;
     }
 }

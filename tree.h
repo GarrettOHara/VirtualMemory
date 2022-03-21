@@ -40,7 +40,8 @@ class tree {
 
         cache *cache_ptr;
 
-        mymap* page_lookup(tree *page_table, unsigned int vpn);
+        mymap* page_lookup(tree *page_table, 
+            unsigned int vpn);
         mymap* page_lookup(tree *page_table, 
             unsigned int vpn, 
             unsigned int virtual_time);
@@ -48,7 +49,7 @@ class tree {
         void insert(tree *page_table,
                 unsigned int address, 
                 unsigned int PFN);
-        void insert(tree *page_table, 
+        mymap* insert(tree *page_table, 
                 unsigned int virtual_time,
                 unsigned int address, 
                 unsigned int PFN);

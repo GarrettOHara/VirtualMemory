@@ -27,10 +27,6 @@ paging.o : arguments.h paging.cpp
 
 mymap.o : mymap.h mymap.cpp
 
-# output.o : output_mode_helpers.h output_mode_helpers.c
-
-# mode.o : modes.h modes.cpp
-
 cache.o : cache.h cache.cpp
 
 clean :
