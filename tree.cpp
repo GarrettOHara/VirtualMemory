@@ -311,7 +311,9 @@ mymap* tree::insert(tree *page_table,
 
         /* value is not in the cache_ptr, walk page table and insert */
         if(newmapping == nullptr){
-            return page_table->cache_ptr->insert(VPN,virtual_time,address,PFN);
+            mymap *map_ptr = page_table->page_lookup(page_table,VPN);
+            page_table->cache_ptr->insert(VPN,virtual_time,address,PFN);
+            return map_ptr;
         }
 
         return newmapping;
