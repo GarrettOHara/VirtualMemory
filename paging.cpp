@@ -116,7 +116,7 @@ int main(int argc, char **argv){
             MODE="DEFAULT";
         
         /* construct page table */
-        tree *page_table = new tree(LEVEL_COUNT, BITS);
+        tree *page_table = new tree(LEVEL_COUNT, BITS, CACHE_SIZE);
 
         /* run program in user specified mode */
         if(strcmp(MODE,BITMASK)==0){
@@ -130,6 +130,9 @@ int main(int argc, char **argv){
             exit(0);
         } else if(strcmp(MODE,V2P)==0){
             modes::vpn_pa(page_table, argv[TRACE_INDEX], PROCESS_LINES, BITS);
+            exit(0);
+        } else if(strcmp(MODE,V2P_TLB)==0){
+            modes::vpn_tlb(page_table, argv[TRACE_INDEX],PROCESS_LINES, BITS);
             exit(0);
         }
 

@@ -16,7 +16,7 @@ CFLAGS = -c -Wall -Iinclude
 # First target is the one executed if you just type make
 # make target specifies a specific target
 # $^ is an example of a special variable.  It substitutes all dependencies
-tlb : paging.o tree.o level.o map.o tracereader.h tracereader.c output_mode_helpers.h output_mode_helpers.c summary.h summary.cpp
+tlb : paging.o tree.o level.o mymap.o cache.o tracereader.h tracereader.c output_mode_helpers.h output_mode_helpers.c summary.h summary.cpp
 	$(CXX) $(CXXFLAGS) $^ 
 
 tree.o : tree.h tree.cpp
@@ -25,11 +25,13 @@ level.o : level.h level.cpp
 
 paging.o : arguments.h paging.cpp
 
-map.o : map.h map.cpp
+mymap.o : mymap.h mymap.cpp
 
 # output.o : output_mode_helpers.h output_mode_helpers.c
 
 # mode.o : modes.h modes.cpp
+
+cache.o : cache.h cache.cpp
 
 clean :
 	rm *.o *.gch

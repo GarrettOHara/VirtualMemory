@@ -27,9 +27,10 @@ struct summary {
 
 namespace modes{
     void bitmask(tree *page_table, std::vector<int>bits);
-    void offset(tree *page_table, char *file, int PROCESS_LINES);
+    void offset (tree *page_table, char *file, int PROCESS_LINES);
     void vpn_pfn(tree *page_table, char *file, int PROCESS_LINES, struct summary SUMMARY_DATA);
-    void vpn_pa(tree *page_table, char *file, int PROCESS_LINES, std::vector<int>bits);
+    void vpn_pa (tree *page_table, char *file, int PROCESS_LINES, std::vector<int>bits);
+    void vpn_tlb(tree *page_table, char *file, unsigned int PROCESS_LINES, std::vector<int>bits);
 }
 
 #define BITMASK "bitmasks"                  // CALLS REPORT_BITMASKS
@@ -40,7 +41,3 @@ namespace modes{
 #define SUMMARY "summary"                   // CALLS REPORT SUMMARY
 
 #endif
-
-// 0xf0000000
-// 0x0f000000
-// 0x00fff000

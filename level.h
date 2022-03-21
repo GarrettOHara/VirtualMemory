@@ -9,7 +9,7 @@
 #define LEVEL_H_
 #include <iostream>
 #include "tree.h"
-#include "map.h"
+#include "mymap.h"
 
 class tree;
 
@@ -21,7 +21,7 @@ class level {
         
     public:
         level **level_pts;
-        map **mappings;
+        mymap **mappings;
         // std::map<unsigned int, unsigned int> 
         //     *mappings;
         level(int depth, tree *ptr, int size);

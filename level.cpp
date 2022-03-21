@@ -7,7 +7,7 @@
  **/
 #include <iostream>
 #include "level.h"
-#include "map.h"
+#include "mymap.h"
 
 /* CONSTRUCTOR */
 level::level(int depth, tree *ptr, int size){
@@ -23,7 +23,7 @@ level::level(int depth, tree *ptr, int size){
     
     /* leaf node mappings */
     } else {
-        mappings = new map*[size];
+        mappings = new mymap*[size];
         for(int i = 0; i < size; i++)
             mappings[i] = nullptr;
     }
