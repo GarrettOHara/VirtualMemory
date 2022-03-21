@@ -14,7 +14,7 @@
 
 #define LRU_SIZE 10
 
-void penis(unsigned int x, bool padding){
+void hex_string(unsigned int x, bool padding){
     if(padding)
         printf("%#lx\n",x);
     else 
@@ -30,10 +30,10 @@ cache::cache(int size){
 
 void cache::cache_tostring(){
     for(const auto &lookup_iter : lookup){
-        penis(lookup_iter.first,false);
-        penis(lookup_iter.second->key,false);
-        penis(lookup_iter.second->pfn,false);
-        penis(lookup_iter.second->pfn,true);
+        hex_string(lookup_iter.first,false);
+        hex_string(lookup_iter.second->key,false);
+        hex_string(lookup_iter.second->pfn,false);
+        hex_string(lookup_iter.second->pfn,true);
     }
 }
 
@@ -96,8 +96,8 @@ mymap* cache::insert(unsigned int vpn,
             for(const auto &lookup_LRU : LRU){
                 unsigned int lru_vpn = lookup_LRU.second;
                 
-                penis(tmp_mapping->vpn,false);
-                penis(lookup_LRU.second,false);
+                hex_string(tmp_mapping->vpn,false);
+                hex_string(lookup_LRU.second,false);
                 
 
                 if(tmp_mapping->vpn == lru_vpn)
