@@ -260,8 +260,10 @@ void modes::vpn_tlb(tree *page_table,
 void modes::standard_out(tree *page_table, 
         char *file, 
         unsigned int PROCESS_LINES, 
-        std::vector<int>bits,
-        struct summary SUMMARY_DATA){
+        std::vector<int>bits){
+
+    summary SUMMARY_DATA;
+    
 
     unsigned int page_size = 0;     // TOTAL BITS PASSED - ADDRESS SPACE
     unsigned int PFN = 0;           // PHYSICAL FRAME NUMBER
@@ -288,7 +290,6 @@ void modes::standard_out(tree *page_table,
     /* no limit passed, process all lines */
     if(PROCESS_LINES==DEFAULT){
         while (!feof(ifp)) {
-            std::cout << "RUNNING ";
             /* get next address and process */
             if(NextAddress(ifp, &trace)){
                 i++;
@@ -342,25 +343,10 @@ void modes::standard_out(tree *page_table,
     /* clean up */
     fclose(ifp);
 
-    // report_summary(SUMMARY_DATA.page_size, 
-    //     SUMMARY_DATA.cache_hits,
-    //     SUMMARY_DATA.page_hits,
-    //     PROCESS_LINES,
-    //     SUMMARY_DATA.total_missses,
-    //     SUMMARY_DATA.bytes);
-
-    std::cout   << "Page size: " << SUMMARY_DATA.page_size << " bytes" << "\n"
-                << "Addresses processed: : " << PROCESS_LINES << "\n"
-                << "Cache hits: " << SUMMARY_DATA.cache_hits 
-                << ", Page hits: " << SUMMARY_DATA.page_hits 
-                << ", Total hits: " << SUMMARY_DATA.cache_hits+SUMMARY_DATA.page_hits 
-                << ", Misses: " << SUMMARY_DATA.total_missses <<  "\n"
-                << "Total hit percentage: " 
-                << ((double)SUMMARY_DATA.total_hits 
-                            / (double)PROCESS_LINES) * 100.0  << "%"
-                << ", Total miss percentage: " 
-                << ((double)SUMMARY_DATA.total_missses 
-                            / (double)PROCESS_LINES) * 100.0 << "%" << "\n"
-                << "Frames allocated: " << SUMMARY_DATA.total_missses << "\n"
-                << "Bytes used: " << SUMMARY_DATA.bytes << std::endl;
+    report_summary(SUMMARY_DATA.page_size, 
+        SUMMARY_DATA.cache_hits,
+        SUMMARY_DATA.page_hits,
+        PROCESS_LINES,
+        SUMMARY_DATA.total_missses,
+        page_table->treebytes(page_table));
 }

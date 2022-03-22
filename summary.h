@@ -14,15 +14,13 @@
 #include "level.h"
 
 struct summary {
-    unsigned int page_size;
-    unsigned int addresses_read;
-    unsigned int cache_hits;
-    unsigned int page_hits;
-    unsigned int total_hits;
-    unsigned int total_missses;
-    unsigned int bytes;
-    double hit_percentage;
-    double miss_percentage;
+    unsigned int page_size = 0;
+    unsigned int addresses_read = 0;
+    unsigned int cache_hits = 0;
+    unsigned int page_hits = 0;
+    unsigned int total_hits = 0;
+    unsigned int total_missses = 0;
+    unsigned int bytes = 0;
 };
 
 namespace modes{
@@ -47,8 +45,7 @@ namespace modes{
     void standard_out(tree *page_table, 
         char *file, 
         unsigned int PROCESS_LINES, 
-        std::vector<int>bits,
-        struct summary SUMMARY_DATA);
+        std::vector<int>bits);
 }
 
 #define BITMASK "bitmasks"                  // CALLS REPORT_BITMASKS

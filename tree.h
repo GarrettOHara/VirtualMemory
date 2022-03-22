@@ -16,13 +16,7 @@
 class level;
 
 class tree {
-    private:
-        // unsigned int *bitmask;
-        // unsigned int *bitshift;
-        // unsigned int *entrycount;
-        // level *root_ptr;
-
-        
+    private:      
         unsigned int manually_set_mask(std::vector<int>);
 
         
@@ -32,9 +26,11 @@ class tree {
         ~tree();
 
         int levels;
+        unsigned int bytes_used;
         unsigned int *bitmask;
         unsigned int *bitshift;
         unsigned int *entrycount;
+        unsigned int *empty_pages;
         unsigned int fullbitmask;
         level *root_ptr;
 
@@ -57,6 +53,8 @@ class tree {
         unsigned int virtual_address_page(unsigned int address, 
                 unsigned int bitmask,
                 unsigned int bit_shift);
+
+        unsigned int treebytes(tree *page_table);
 };
 
 #endif

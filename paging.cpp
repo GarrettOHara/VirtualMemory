@@ -142,7 +142,7 @@ int main(int argc, char **argv){
             modes::vpn_tlb(page_table, argv[TRACE_INDEX],PROCESS_LINES, BITS, SUMMARY_DATA);
             exit(0);
         } else {
-            modes::standard_out(page_table, argv[TRACE_INDEX], PROCESS_LINES, BITS, SUMMARY_DATA);
+            modes::standard_out(page_table, argv[TRACE_INDEX], PROCESS_LINES, BITS);
             exit(0);
         }           
 

@@ -57,9 +57,11 @@ tree::tree(int depth, std::vector<int>tree_structure, int cache_size){
     unsigned int* bits  {new unsigned int[depth]{}};
     unsigned int* shift {new unsigned int[depth]{}};
     unsigned int* entry {new unsigned int[depth]{}};
+    unsigned int* empty_pages {new unsigned int[depth]{}};
     this->bitmask = bits;
     this->bitshift = shift;
     this->entrycount = entry;
+    this->empty_pages = empty_pages;
     this->fullbitmask = 0;
 
     levels = depth;                                 // SET NUMBER OF LEVELS
@@ -107,6 +109,13 @@ unsigned int tree::manually_set_mask(std::vector<int>args){
         this->fullbitmask = fullbitmask ^ tmp;
         this->bitmask[i] = tmp;
     }
+}
+
+unsigned int tree::treebytes(tree *page_table){
+    unsigned int treebytes = page_table->entrycount[0];
+    for(int i = 0; i < page_table->levels-1; i++)
+        treebytes *= page_table->entrycount[i+1] * page_table->empty_pages[i];
+    return treebytes;
 }
 
 unsigned int tree::virtual_address_page(unsigned int address, 
@@ -251,6 +260,7 @@ void tree::insert(tree *page_table,
             /* create new level if null */
             if(l->level_pts[index]==nullptr){
                 level *tmp = new level(i+1,page_table,entrycount[i+1]);
+                page_table->empty_pages[i] += sizeof(level);
                 l->level_pts[index] = tmp;
             }
 
@@ -261,6 +271,7 @@ void tree::insert(tree *page_table,
         } else {
             if(l->mappings[index]==nullptr){
                 mymap* mymap = new typename mymap::mymap(index,address,PFN,false,false);
+                page_table->empty_pages[i] += sizeof(mymap);
                 l->mappings[index] = mymap;
             }
         }
@@ -289,6 +300,7 @@ mymap* tree::insert(tree *page_table,
                 /* create new level if null */
                 if(l->level_pts[index]==nullptr){
                     level *tmp = new level(i+1,page_table,entrycount[i+1]);
+                    page_table->empty_pages[i] += sizeof(level);
                     l->level_pts[index] = tmp;
                 }
 
@@ -301,6 +313,7 @@ mymap* tree::insert(tree *page_table,
                 /* PAGE TABLE MISS insert leaf node */
                 if(l->mappings[index]==nullptr){
                     mymap* mymap = new typename mymap::mymap(index,address,PFN,false,false);
+                    page_table->empty_pages[i] += sizeof(mymap);
                     l->mappings[index] = mymap;
                     return mymap;
                 

@@ -30,5 +30,5 @@ mymap.o : mymap.h mymap.cpp
 cache.o : cache.h cache.cpp
 
 clean :
-	rm *.o *.gch
+	rm *.o
 
