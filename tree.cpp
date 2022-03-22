@@ -19,8 +19,17 @@
 #define ADDRESS_SPACE 32
 #define CACHE_DEFAULT -1
 
-/* source: https://stackoverflow.com/questions/62227706/how-to-remove-
-trailing-zeros-from-a-binary-number */
+/**
+ * @brief removes trailing zeros for 
+ * user interface output/debugging
+ * 
+ * source: https://stackoverflow.com/
+questions/62227706/how-to-remove-
+trailing-zeros-from-a-binary-number
+ * 
+ * @param x : unsigned int for processing
+ * @return unsigned int 
+ */
 unsigned int remove_trailing_zeroes(unsigned int x) {
     if (x != 0) {
         while ((x & 1) == 0)
@@ -29,6 +38,14 @@ unsigned int remove_trailing_zeroes(unsigned int x) {
     return x;
 }
 
+/**
+ * @brief convert from 
+ *  LITTLE -> BIG
+ *  BIG    -> LITTLE 
+ * 
+ * @param num : unsigned int for processing
+ * @return unsigned int 
+ */
 unsigned int convert_endian(unsigned int num){
     return(((num << 24) & 0xff000000) 
           |((num << 8)  & 0x00ff0000) 
@@ -37,6 +54,12 @@ unsigned int convert_endian(unsigned int num){
     );
 }
 
+/**
+ * @brief convert unsigned int to hex output
+ * 
+ * @param x        : unsigned int for processing
+ * @param padding  : add whitespace padding
+ */
 void hex_tostring(unsigned int x, bool padding){
     if(padding)
         printf("%#lx\n\t\t",x);
@@ -44,6 +67,11 @@ void hex_tostring(unsigned int x, bool padding){
         printf("%#lx ",x);
 }
 
+/**
+ * @brief convert unsigned int to binary output
+ * 
+ * @param num : unsigned int for processing
+ */
 void binary_tostring(unsigned int num){
     if(!num) return;
     binary_tostring(num>>1);
@@ -51,9 +79,15 @@ void binary_tostring(unsigned int num){
 }
 
 /* TREE CONSTRUCTOR */
+/**
+ * @brief Construct a new tree::tree object
+ * 
+ * @param depth      : amount of levels for tree
+ * @param cache_size : TLB cache size
+ */
 tree::tree(int depth, std::vector<int>tree_structure, int cache_size){
     
-    /*  initialize arrays */
+    /*  initialize arrays at runtime */
     unsigned int* bits  {new unsigned int[depth]{}};
     unsigned int* shift {new unsigned int[depth]{}};
     unsigned int* entry {new unsigned int[depth]{}};
@@ -89,7 +123,12 @@ tree::tree(int depth, std::vector<int>tree_structure, int cache_size){
         cache_ptr = new cache(cache_size);       // SET POINTER TO CACHE
 }
 
-/* SET THE MASK FOR EACH BIT */
+/**
+ * @brief set bitmask for each user specified bit
+ *  per tree level
+ * 
+ * @return unsigned int : bitmask
+ */
 unsigned int tree::manually_set_mask(std::vector<int>args){
     int val;
     unsigned int helper = 0;
@@ -111,6 +150,12 @@ unsigned int tree::manually_set_mask(std::vector<int>args){
     }
 }
 
+/**
+ * @brief calculate total size of PageTable tree
+ * 
+ * @param page_table    : object to size
+ * @return unsigned int 
+ */
 unsigned int tree::treebytes(tree *page_table){
     unsigned int treebytes = page_table->entrycount[0];
     for(int i = 0; i < page_table->levels-1; i++)

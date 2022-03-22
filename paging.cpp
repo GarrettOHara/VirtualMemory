@@ -27,17 +27,30 @@
 using namespace std;
 using namespace arguments;
 
-
+/**
+ * @brief process all CLI arguments
+    - Address file to process ( .tr )
+    - PageTable Tree structure, levels and page sizes
+    - Quantity of addresses to process
+    - Cache sizing
+    - Specify user interfaces
+ * 
+ * @param argc : count of arguments
+ * @param argv : pointers to char arrays
+ */
 void proccess_arguments(int argc, char **argv){
     for(int i = 0; i < argc; i++){
+
+        /* cast argument to string for comparison */
         string tmp = argv[i];
+
         /* check and process flags */
-        if(strcmp(argv[i],"-n")==0){
+        if(strcmp(argv[i],"-n")==0){                // ADDRESSES TO PROCESS
             int val = atoi(argv[i+1]);
             PROCESS_LINES = val;
             i++;
             continue;
-        } else if(strcmp(argv[i],"-c")==0){
+        } else if(strcmp(argv[i],"-c")==0){         // TLB CACHE SIZE
             int val = atoi(argv[i+1]);
             if(val < 0)
                 throw invalid_argument("Cache capacity must be a number, " 
@@ -45,7 +58,7 @@ void proccess_arguments(int argc, char **argv){
             CACHE_SIZE = val;
             i++;
             continue;
-        } else if(strcmp(argv[i], "-o")==0){
+        } else if(strcmp(argv[i], "-o")==0){        // USER INTERFACE MODE
             MODE = argv[i+1];
             i++;
             continue;
@@ -71,26 +84,13 @@ void proccess_arguments(int argc, char **argv){
     }
 }
 
-void print_arguments(tree *page_table){
-    cout << "BIT COUNT:\t" << BIT_COUNT << endl;
-    cout << "LEVEL COUNT:\t" << LEVEL_COUNT << endl;
-    cout << "PROCESS LINES:\t" << PROCESS_LINES << endl;
-    cout << "CACHE SIZE: \t" << CACHE_SIZE << endl;
-    cout << "MODE: \t\t" << MODE << endl;
-    cout << "TRACE INDEX:\t" << TRACE_INDEX << endl;
-    cout << "BITSHIFT:\t";
-    for(int i = 0; i < BITS.size(); i++){
-        cout << page_table->bitshift[i] << " ";
-    }
-    cout << endl;
-    cout << "ENTRYCOUNT:\t";
-    for(int i = 0; i < BITS.size(); i++){
-        cout << page_table->entrycount[i] << " ";
-    }
-    cout << "\n" << page_table->root_ptr << "\n" << endl;
-}
-
-/* check to see if file exists */
+/**
+ * @brief check too see if file exists
+ * 
+ * @param file_name : name of file for parsing
+ * @return true     : file exists
+ * @return false    : file corrupt or not found
+ */
 inline bool exists(const string &file_name) {
     if (FILE *file = fopen(file_name.c_str(), "r")) {
         fclose(file);
@@ -99,6 +99,17 @@ inline bool exists(const string &file_name) {
         return false;
 }
 
+/**
+ * @brief driver of program
+    - pass arguments to parser
+    - check user inputs
+    - instantiate page table tree
+    - run program in user specified mode
+ * 
+ * @param argc : count of arguments
+ * @param argv : pointers to char arrays
+ * @return int : void
+ */
 int main(int argc, char **argv){
     try{
         struct summary SUMMARY_DATA;

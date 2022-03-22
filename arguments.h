@@ -7,7 +7,12 @@
  **/
 #ifndef ARGUMENTS_H_                                 // INCLUDE GUARD
 #define ARGUMENTS_H_
+
+/* IMPORTS */
 #include <vector>
+#include "tree.h"
+
+/* DEFAULTS */
 #define DEFAULT -1
 #define DEFAULT_MODE "DEFAULT"
 
@@ -20,6 +25,7 @@ namespace arguments {
     int TRACE_INDEX   = DEFAULT;
     char *MODE;
 
+    void print_arguments(tree *page_table);
 };
 
 #endif
