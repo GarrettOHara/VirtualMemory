@@ -7,6 +7,7 @@
  **/
 
 /* IMPORTS */
+#include <cmath>
 #include <math.h>
 #include <iostream>
 #include "summary.h"
@@ -18,11 +19,6 @@
 
 void modes::bitmask(tree *page_table, std::vector<int>bits){
     report_bitmasks(page_table->levels,page_table->bitmask);
-    // std::cout<<"Bitmasks"<<std::endl;
-    // for(int i = 0; i < bits.size(); i++){
-    //     std::cout << "Level "<< i <<" mask ";
-    //     hexnum(page_table->bitmask[i]);
-    // }
 }
 
 void modes::offset(tree *page_table, char *file, int PROCESS_LINES){
@@ -56,7 +52,11 @@ void modes::offset(tree *page_table, char *file, int PROCESS_LINES){
         fclose(ifp);
 }
 
-void modes::vpn_pfn(tree *page_table, char *file, int PROCESS_LINES, struct summary SUMMARY_DATA){
+void modes::vpn_pfn(tree *page_table, 
+        char *file, 
+        int PROCESS_LINES, 
+        struct summary SUMMARY_DATA){
+    
     unsigned int PFN = 0;
     FILE *ifp;	                    // TRACE FILE
     unsigned long i = 0;            // INSTRUCTIONS PROCESSED
@@ -165,7 +165,11 @@ void modes::vpn_pa(tree *page_table, char *file, int PROCESS_LINES, std::vector<
     fclose(ifp);
 }
 
-void modes::vpn_tlb(tree *page_table, char *file, unsigned int PROCESS_LINES, std::vector<int>bits){
+void modes::vpn_tlb(tree *page_table, 
+        char *file, 
+        unsigned int PROCESS_LINES, 
+        std::vector<int>bits,
+        struct summary SUMMARY_DATA){
     
     unsigned int BUFFER = 0xFFFFFFFF;                      // BUFFER FOR EXTRACTING OFFSET
     unsigned int page_size = 0;                            // TOTAL BITS PASSED - ADDRESS SPACE
@@ -198,16 +202,26 @@ void modes::vpn_tlb(tree *page_table, char *file, unsigned int PROCESS_LINES, st
         while (!feof(ifp)) {
             /* get next address and process */
             if(NextAddress(ifp, &trace)){
+
+                /* extract offset for MMU converstion */
                 unsigned int offset = (trace.addr & BUFFER);
-                mymap *mymap = page_table->page_lookup(page_table,trace.addr);
+
+                /* lookup page in TBL cache and pagetable */
+                /* return MISS MISS, or MISS HIT */
+                mymap *mymap = page_table->page_lookup(page_table,trace.addr,i);
+                
+                /* TBL cache miss and pagetable miss, demand paging */
+                /* RETURN MISS MISS*/
                 if(mymap==nullptr){
-                    page_table->insert(page_table,trace.addr,PFN);
-                    mymap = page_table->page_lookup(page_table,trace.addr);
+                    mymap = page_table->insert(page_table,i,trace.addr,PFN);
                     PFN++;
                 }
+
+                /* MMU calculation for physical address */
                 unsigned int physical_address = mymap->pfn*page_size+offset;
-                report_virtual2physical(trace.addr,physical_address);
-                i++;           
+                report_v2pUsingTLB_PTwalk(trace.addr,physical_address,
+                    mymap->tlb_cache_hit,mymap->page_table_hit);
+                i++;               
             }
         }
     
@@ -221,12 +235,6 @@ void modes::vpn_tlb(tree *page_table, char *file, unsigned int PROCESS_LINES, st
                 /* extract offset for MMU converstion */
                 unsigned int offset = (trace.addr & BUFFER);
 
-                // if(page_table->cache_ptr == nullptr)
-                //     std::cout<<"NULL POINTER"<<std::endl;
-                // else 
-                //     std::cout<<page_table->cache_ptr<<"\n"<<std::endl;
-                
-
                 /* lookup page in TBL cache and pagetable */
                 /* return MISS MISS, or MISS HIT */
                 mymap *mymap = page_table->page_lookup(page_table,trace.addr,i);
@@ -235,16 +243,124 @@ void modes::vpn_tlb(tree *page_table, char *file, unsigned int PROCESS_LINES, st
                 /* RETURN MISS MISS*/
                 if(mymap==nullptr){
                     mymap = page_table->insert(page_table,i,trace.addr,PFN);
-                    //mymap = page_table->page_lookup(page_table,trace.addr,i);
                     PFN++;
                 }
 
                 /* MMU calculation for physical address */
                 unsigned int physical_address = mymap->pfn*page_size+offset;
-                report_v2pUsingTLB_PTwalk(trace.addr,physical_address,mymap->tlb_cache_hit,mymap->page_table_hit);                
+                report_v2pUsingTLB_PTwalk(trace.addr,physical_address,
+                    mymap->tlb_cache_hit,mymap->page_table_hit);                
             }
         }
     }
     /* clean up */
     fclose(ifp);
+}
+
+void modes::standard_out(tree *page_table, 
+        char *file, 
+        unsigned int PROCESS_LINES, 
+        std::vector<int>bits,
+        struct summary SUMMARY_DATA){
+
+    unsigned int page_size = 0;     // TOTAL BITS PASSED - ADDRESS SPACE
+    unsigned int PFN = 0;           // PHYSICAL FRAME NUMBER
+
+    /* count how many bits were passed */
+    for(int i = 0; i < page_table->levels; i++)
+        page_size+=bits.at(i);
+    
+    /* calculate page size */
+    SUMMARY_DATA.page_size = pow(2,ADDRESS_SAPCE-page_size);
+
+
+    /* file reading */
+    FILE *ifp;	                    // TRACE FILE
+    unsigned long i = 0;            // INSTRUCTIONS PROCESSED
+    p2AddrTr trace;	                // TRACED ADDRESSES
+
+    /* open file, hadnle errors */
+    if ((ifp = fopen(file,"rb")) == NULL) {
+        fprintf(stderr,"cannot open %s for reading\n",file);
+        exit(1);
+    }
+
+    /* no limit passed, process all lines */
+    if(PROCESS_LINES==DEFAULT){
+        while (!feof(ifp)) {
+            std::cout << "RUNNING ";
+            /* get next address and process */
+            if(NextAddress(ifp, &trace)){
+                i++;
+                /* lookup page in TBL cache and pagetable */
+                /* if maymap not null, TLB Cache HIT */
+                mymap *mymap = page_table->page_lookup(page_table,trace.addr,i);
+                
+                /* TBL cache miss and pagetable miss, demand paging */
+                /* RETURN MISS MISS*/
+                if(mymap==nullptr){
+                    mymap = page_table->insert(page_table,i,trace.addr,PFN);
+                    SUMMARY_DATA.total_missses++;
+                    PFN++;
+                } else {
+                    if(mymap->tlb_cache_hit)
+                        SUMMARY_DATA.cache_hits++;
+                    else if(mymap->page_table_hit)
+                        SUMMARY_DATA.page_hits++;
+                }                           
+            }
+        }
+        PROCESS_LINES = i;
+    
+    /* process however many lines are passed */
+    } else {
+        for(int i = 0; i < PROCESS_LINES; i++) {
+            
+            /* get next address and process */
+            if(NextAddress(ifp, &trace)){
+
+                /* lookup page in TBL cache and pagetable */
+                /* if maymap not null, TLB Cache HIT */
+                mymap *mymap = page_table->page_lookup(page_table,trace.addr,i);
+                
+                /* TBL cache miss and pagetable miss, demand paging */
+                /* RETURN MISS MISS*/
+                if(mymap==nullptr){
+                    mymap = page_table->insert(page_table,i,trace.addr,PFN);
+                    SUMMARY_DATA.total_missses++;
+                    PFN++;
+                } else {
+                    if(mymap->tlb_cache_hit)
+                        SUMMARY_DATA.cache_hits++;
+                    else if(mymap->page_table_hit)
+                        SUMMARY_DATA.page_hits++;
+      
+                }                           
+            }
+        }
+    }
+    /* clean up */
+    fclose(ifp);
+
+    // report_summary(SUMMARY_DATA.page_size, 
+    //     SUMMARY_DATA.cache_hits,
+    //     SUMMARY_DATA.page_hits,
+    //     PROCESS_LINES,
+    //     SUMMARY_DATA.total_missses,
+    //     SUMMARY_DATA.bytes);
+
+    std::cout   << "Page size: " << SUMMARY_DATA.page_size << " bytes" << "\n"
+                << "Addresses processed: : " << PROCESS_LINES << "\n"
+                << "Cache hits: " << SUMMARY_DATA.cache_hits 
+                << ", Page hits: " << SUMMARY_DATA.page_hits 
+                << ", Total hits: " << SUMMARY_DATA.cache_hits+SUMMARY_DATA.page_hits 
+                << ", Misses: " << SUMMARY_DATA.total_missses <<  "\n"
+                << "Total hit percentage: " 
+                << ((double)SUMMARY_DATA.total_hits 
+                            / (double)PROCESS_LINES) * 100.0  << "%"
+                << ", Total miss percentage: " 
+                << ((double)SUMMARY_DATA.total_missses 
+                            / (double)PROCESS_LINES) * 100.0 << "%" << "\n"
+                << "Frames allocated: " << SUMMARY_DATA.total_missses << "\n"
+                << "Bytes used: " << SUMMARY_DATA.bytes << std::endl;
 }

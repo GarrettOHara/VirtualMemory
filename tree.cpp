@@ -117,7 +117,13 @@ unsigned int tree::virtual_address_page(unsigned int address,
 }
 
 /* LOOK FOR MAPPING IN CACHE, THEN WALK TREE TO 
-   SEE IF MAPPING IS PRESENT */
+   SEE IF MAPPING IS PRESENT 
+   
+   RETURNS 
+        TLB: HIT
+        TLB: MISS, PAGETABLE: HIT
+        TBL: MISS, PAGETABLE: MISS
+*/
 mymap* tree::page_lookup(tree *page_table, 
         unsigned int vpn, 
         unsigned int virtual_time){
@@ -131,14 +137,14 @@ mymap* tree::page_lookup(tree *page_table,
     /* cache is present, leverage it */
     } else {
         mymap *newmapping = page_table->cache_ptr->contains(VPN);
-        std::cout<<"RETUNED FROM LOOKUP"<<std::endl;
-        /* HIT: value found in the cache_ptr, update LRU */
+        
+        /* TBL HIT: value found in the cache_ptr, update LRU */
         if(newmapping != nullptr){
-            std::cout<<"MAPPING NOT NULL "<<std::endl;
             page_table->cache_ptr->update(virtual_time,VPN);
             return newmapping;
         }
-        std::cout<<"CACHE MISS PAGE TABLE WALK"<<std::endl;
+
+        // std::cout<<"CACHE MISS PAGE TABLE WALK"<<std::endl;
         /* MISS: page table walk */
         level *l = page_table->root_ptr;
         
@@ -150,7 +156,6 @@ mymap* tree::page_lookup(tree *page_table,
             /* check if page exists in tree */
             if(i<page_table->levels-1){
 
-                std::cout<<"WALK "<<i<<std::endl;
                 /* return null if page is not present */
                 if(l->level_pts[index]==nullptr)
                     return nullptr;
@@ -163,11 +168,15 @@ mymap* tree::page_lookup(tree *page_table,
 
                 /* PAGE TABLE MISS: mapping is not present, 
                    return null, demand paging */
-                if(l->mappings[index]==nullptr)
+                if(l->mappings[index]==nullptr){
+                    // std::cout<<"PAGE TABLE MISS"<<std::endl;
                     return nullptr;
+                }
                 
                 /* PAGE TABLE HIT: return pointer to mapping */
                 else{
+                    // std::cout<<"PAGE TABLE HIT"<<std::endl;
+                    l->mappings[index]->page_table_hit = true;
                     return l->mappings[index];
                 }
                     
@@ -258,7 +267,7 @@ void tree::insert(tree *page_table,
     }
 }
 
-
+/* MISS MISS, DEMAIND PAGING UPDATE CACHE */
 mymap* tree::insert(tree *page_table, 
         unsigned int virtual_time,
         unsigned int address, 
@@ -303,19 +312,13 @@ mymap* tree::insert(tree *page_table,
             }
         }
     } else {
-        // std::cout<<"INSERTING TO CACHE "<<std::endl;
 
         unsigned int VPN = address & fullbitmask;
 
-        mymap *newmapping = page_table->cache_ptr->contains(VPN);
+        /* demand paging */
+        page_table->insert(page_table,address,PFN);
 
-        /* value is not in the cache_ptr, walk page table and insert */
-        if(newmapping == nullptr){
-            mymap *map_ptr = page_table->page_lookup(page_table,VPN);
-            page_table->cache_ptr->insert(VPN,virtual_time,address,PFN);
-            return map_ptr;
-        }
-
-        return newmapping;
+        /* update cache */
+        return page_table->cache_ptr->insert(VPN,virtual_time,address,PFN,false);
     }
 }

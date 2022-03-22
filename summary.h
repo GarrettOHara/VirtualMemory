@@ -12,7 +12,6 @@
 
 #include "tree.h"
 #include "level.h"
-#include "summary.h"
 
 struct summary {
     unsigned int page_size;
@@ -21,16 +20,35 @@ struct summary {
     unsigned int page_hits;
     unsigned int total_hits;
     unsigned int total_missses;
-    unsigned int frames_allocated;
     unsigned int bytes;
+    double hit_percentage;
+    double miss_percentage;
 };
 
 namespace modes{
     void bitmask(tree *page_table, std::vector<int>bits);
+    
     void offset (tree *page_table, char *file, int PROCESS_LINES);
-    void vpn_pfn(tree *page_table, char *file, int PROCESS_LINES, struct summary SUMMARY_DATA);
-    void vpn_pa (tree *page_table, char *file, int PROCESS_LINES, std::vector<int>bits);
-    void vpn_tlb(tree *page_table, char *file, unsigned int PROCESS_LINES, std::vector<int>bits);
+    
+    void vpn_pfn(tree *page_table, 
+        char *file, 
+        int PROCESS_LINES, 
+        struct summary SUMMARY_DATA);
+    
+    void vpn_pa (tree *page_table, 
+        char *file, int PROCESS_LINES, 
+        std::vector<int>bits);
+    
+    void vpn_tlb(tree *page_table, 
+        char *file, unsigned int PROCESS_LINES, 
+        std::vector<int>bits,
+        struct summary SUMMARY_DATA);
+    
+    void standard_out(tree *page_table, 
+        char *file, 
+        unsigned int PROCESS_LINES, 
+        std::vector<int>bits,
+        struct summary SUMMARY_DATA);
 }
 
 #define BITMASK "bitmasks"                  // CALLS REPORT_BITMASKS

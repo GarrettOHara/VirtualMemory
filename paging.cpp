@@ -7,6 +7,7 @@
  **/
 
 /* IMPORTS */
+#include <string>
 #include <cstring>
 #include <sstream>
 #include <iostream>
@@ -20,7 +21,7 @@
 #include "output_mode_helpers.h"
 
 /* CONSTANTS */
-#define TRACE_FILE "trace.tr"
+#define TRACE_FILE ".tr"
 
 /* NAMESPACES */
 using namespace std;
@@ -29,15 +30,18 @@ using namespace arguments;
 
 void proccess_arguments(int argc, char **argv){
     for(int i = 0; i < argc; i++){
-
+        string tmp = argv[i];
         /* check and process flags */
         if(strcmp(argv[i],"-n")==0){
-            int val = atoi(argv[i+i]);
+            int val = atoi(argv[i+1]);
             PROCESS_LINES = val;
             i++;
             continue;
         } else if(strcmp(argv[i],"-c")==0){
             int val = atoi(argv[i+1]);
+            if(val < 0)
+                throw invalid_argument("Cache capacity must be a number, " 
+                    "greater than or equal to 0");
             CACHE_SIZE = val;
             i++;
             continue;
@@ -47,14 +51,14 @@ void proccess_arguments(int argc, char **argv){
             continue;
 
         /* check and proces trace file */
-        } else if(strcmp(argv[i],TRACE_FILE)==0)
+        } else if(tmp.find(TRACE_FILE) != string::npos)
             TRACE_INDEX = i;
 
         /* check if argumnet is integer */
         int val;
         istringstream iss( argv[i] );
         if (iss >> val){
-            if(val < 0)
+            if(val < 1)
                 throw invalid_argument("Level "+to_string(LEVEL_COUNT)+
                     " page table must be at least 1 bit");
             else{
@@ -118,6 +122,9 @@ int main(int argc, char **argv){
         /* construct page table */
         tree *page_table = new tree(LEVEL_COUNT, BITS, CACHE_SIZE);
 
+        /* debugging only */
+        //print_arguments(page_table);
+
         /* run program in user specified mode */
         if(strcmp(MODE,BITMASK)==0){
             modes::bitmask(page_table, BITS);
@@ -132,20 +139,19 @@ int main(int argc, char **argv){
             modes::vpn_pa(page_table, argv[TRACE_INDEX], PROCESS_LINES, BITS);
             exit(0);
         } else if(strcmp(MODE,V2P_TLB)==0){
-            modes::vpn_tlb(page_table, argv[TRACE_INDEX],PROCESS_LINES, BITS);
+            modes::vpn_tlb(page_table, argv[TRACE_INDEX],PROCESS_LINES, BITS, SUMMARY_DATA);
             exit(0);
-        }
-
-        print_arguments(page_table);       
-
-              
+        } else {
+            modes::standard_out(page_table, argv[TRACE_INDEX], PROCESS_LINES, BITS, SUMMARY_DATA);
+            exit(0);
+        }           
 
     } catch(const char* msg){
         cout << msg << endl;
     } catch (const ios_base::failure& e){
         cout << "Unable to open <<" << e.what() << ">>" << endl;
     } catch ( const exception& e ) {
-        cerr << "ERROR: " << e.what() << endl;
+        cerr << e.what() << endl;
     }
     return 0;
 }

@@ -47,7 +47,7 @@ mymap* cache::contains(unsigned int vpn){
     
     /* TBL cache HIT */
     else{
-        std::cout<<"HIT"<<std::endl;
+        // std::cout<<"HIT"<<std::endl;
         mymap *tmpmap = lookup[vpn];
         tmpmap->tlb_cache_hit = true;
         return tmpmap;
@@ -80,11 +80,12 @@ void cache::update(unsigned int virtual_time,
 mymap* cache::insert(unsigned int vpn, 
     unsigned int virtual_time, 
     unsigned int address, 
-    unsigned int pfn){
+    unsigned int pfn,
+    bool page_table_hit){
 
     /* room in cache available, no need for replacement */
     if(this->lookup.size() < this->size){
-        mymap *mymap = new typename mymap::mymap(virtual_time,address,pfn,false,true);
+        mymap *mymap = new typename mymap::mymap(virtual_time,address,pfn,false,page_table_hit);
         this->lookup[vpn]=mymap;
         this->LRU[virtual_time]=vpn;
     
@@ -95,20 +96,20 @@ mymap* cache::insert(unsigned int vpn,
 
     /* no more room in cache, replacement algorithm */
     } else {
-        cache_tostring();
-        std::cout << "CACHE REPLACEMENT ALGORITHM: " << std::endl;
+        // cache_tostring();
+        // std::cout << "CACHE REPLACEMENT ALGORITHM: " << std::endl;
         int i = 0; 
         for(const auto &lookup_mapping : lookup){
             
             mymap *tmp_mapping = lookup_mapping.second;
             bool found = false;
 
-            hex_string(tmp_mapping->vpn,true);
+            // hex_string(tmp_mapping->vpn,true);
             
-            std::cout<<"i: "<< i;
-            int j = 0;
+            // std::cout<<"i: "<< i;
+            // int j = 0;
             for(const auto &lookup_LRU : LRU){
-                std::cout<<" j: "<< j;
+                // std::cout<<" j: "<< j;
                 unsigned int lru_vpn = lookup_LRU.second;
                 
                 // hex_string(tmp_mapping->vpn,false);
@@ -116,25 +117,25 @@ mymap* cache::insert(unsigned int vpn,
                 
 
                 if(tmp_mapping->vpn == lru_vpn){
-                    std::cout<<"MAPPING FOUND IN LRU"<<std::endl;
+                    // std::cout<<"MAPPING FOUND IN LRU"<<std::endl;
                     found = true;               
                 } 
-                j++;
+                // j++;
             }
-            std::cout<<std::endl;
-            i++;
+            // std::cout<<std::endl;
+            // i++;
 
             /* mapping was not present in working set (LRU) -> victim */
             if(!found){
-                std::cout<<"REPLACING: ";
-                hex_string(lookup_mapping.first,false);
+                // std::cout<<"REPLACING: ";
+                // hex_string(lookup_mapping.first,false);
                 lookup.erase(lookup_mapping.first);
                 
                 /* recurssive call since cache has room, break loop */
-                insert(vpn,virtual_time,address,pfn);
+                insert(vpn,virtual_time,address,pfn,page_table_hit);
                 break;
             }
-            std::cout<<"NOT REPLACED"<<std::endl;
+            // std::cout<<"NOT REPLACED"<<std::endl;
         }
     }
 

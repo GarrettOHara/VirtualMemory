@@ -1,0 +1,20 @@
+0041F760 -> 00000760, tlb miss, pagetable miss
+0041F780 -> 00000780, tlb hit
+0041F740 -> 00000740, tlb hit
+11F5E2C0 -> 000012C0, tlb miss, pagetable miss
+05E78900 -> 00002900, tlb miss, pagetable miss
+13270900 -> 00003900, tlb miss, pagetable miss
+004758A0 -> 000048A0, tlb miss, pagetable miss
+004A30A0 -> 000050A0, tlb miss, pagetable miss
+0049E110 -> 00006110, tlb miss, pagetable miss
+0049E160 -> 00006160, tlb hit
+0044E4F8 -> 000074F8, tlb miss, pagetable miss
+0044E500 -> 00007500, tlb hit
+0744E520 -> 00008520, tlb miss, pagetable miss
+0044E5A0 -> 000075A0, tlb miss, pagetable hit
+388A65A0 -> 000095A0, tlb miss, pagetable miss
+0744EDD0 -> 00008DD0, tlb miss, pagetable hit
+0044E5E0 -> 000075E0, tlb miss, pagetable hit
+0703FF10 -> 0000AF10, tlb miss, pagetable miss
+0044E620 -> 00007620, tlb miss, pagetable hit
+1D496620 -> 0000B620, tlb miss, pagetable miss
