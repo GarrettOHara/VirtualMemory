@@ -13,6 +13,7 @@
 
 #include "mymap.h"
 
+/* TBL CACHE CLASS TO STORE CACHE VALUES AND LRU */
 class cache {
     private:
         int size;
@@ -22,8 +23,8 @@ class cache {
         cache(int size);
         ~cache();
 
-        std::map<unsigned int, mymap*> lookup;
-        std::unordered_map<unsigned int, unsigned int>LRU;
+        std::unordered_map<unsigned int, mymap*> lookup;
+        std::map<unsigned int, unsigned int>LRU;
 
         mymap* insert(unsigned int vpn, 
             unsigned int virtual_time, 

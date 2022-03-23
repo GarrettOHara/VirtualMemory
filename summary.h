@@ -7,12 +7,15 @@
  **/
 #ifndef SUMMARY_H_                          // INCLUDE GUARD
 #define SUMMARY_H_
+
+/* IMPORTS */
 #include <vector>
 #include <iostream>
 
 #include "tree.h"
 #include "level.h"
 
+/* USER OUTPUT SUMMARY BOOK KEEPING */
 struct summary {
     unsigned int page_size = 0;
     unsigned int addresses_read = 0;
@@ -23,6 +26,7 @@ struct summary {
     unsigned int bytes = 0;
 };
 
+/* TEMPLATE FOR DIFFERENT USER OUTPOUT MODES */
 namespace modes{
     void bitmask(tree *page_table, std::vector<int>bits);
     
@@ -48,6 +52,7 @@ namespace modes{
         std::vector<int>bits);
 }
 
+/* USER MODE CONSTANTS */
 #define BITMASK "bitmasks"                  // CALLS REPORT_BITMASKS
 #define V2P     "virtual2physical"          // CALLS REPORT_VIRTUAL2PHYSICAL
 #define V2P_TLB "v2p_tlb_pt"                // CALLS REPORT_V2PUSINGTLB_PTWALK

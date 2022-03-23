@@ -14,13 +14,27 @@
 #include "tracereader.h"
 #include "output_mode_helpers.h"
 
+/* DEFINE CONSTANTS */
 #define DEFAULT -1
 #define ADDRESS_SAPCE 32
 
+/**
+ * @brief user mode to print bitmasking
+ * 
+ * @param page_table : tree object
+ */
 void modes::bitmask(tree *page_table, std::vector<int>bits){
     report_bitmasks(page_table->levels,page_table->bitmask);
 }
 
+/**
+ * @brief user mode to print offset of
+ *  all addresses read
+ * 
+ * @param page_table    : tree object
+ * @param file          : file for reading
+ * @param PROCESS_LINES : addresses to process
+ */
 void modes::offset(tree *page_table, char *file, int PROCESS_LINES){
     unsigned int BUFFER = 0xFFFFFFFF;
     for(int i = 0; i < page_table->levels; i++){
@@ -52,6 +66,15 @@ void modes::offset(tree *page_table, char *file, int PROCESS_LINES){
         fclose(ifp);
 }
 
+/**
+ * @brief user mode to print Virtual Page Number
+ *  to Physical Frame Number
+ * 
+ * @param page_table    : tree object
+ * @param file          : file for reading
+ * @param PROCESS_LINES : addresses to process
+ * @param SUMMARY_DATA  : user output book keeping data
+ */
 void modes::vpn_pfn(tree *page_table, 
         char *file, 
         int PROCESS_LINES, 
@@ -112,6 +135,14 @@ void modes::vpn_pfn(tree *page_table,
     fclose(ifp);
 }
 
+/**
+ * @brief user mode to print Virtual Page Number
+ *  to Physical Address
+ * 
+ * @param page_table    : tree object
+ * @param file          : file for reading
+ * @param PROCESS_LINES : addresses to process
+ */
 void modes::vpn_pa(tree *page_table, char *file, int PROCESS_LINES, std::vector<int>bits){
     unsigned int BUFFER = 0xFFFFFFFF;
     unsigned int page_size = 0;
@@ -165,6 +196,15 @@ void modes::vpn_pa(tree *page_table, char *file, int PROCESS_LINES, std::vector<
     fclose(ifp);
 }
 
+/**
+ * @brief user output mode to print Virtual Page Number
+ *  and display cache and page table hit results
+ * 
+ * @param page_table    : tree object
+ * @param file          : file for reading
+ * @param PROCESS_LINES : addresses to process
+ * @param SUMMARY_DATA  : user output book keeping data
+ */
 void modes::vpn_tlb(tree *page_table, 
         char *file, 
         unsigned int PROCESS_LINES, 
@@ -257,6 +297,14 @@ void modes::vpn_tlb(tree *page_table,
     fclose(ifp);
 }
 
+/**
+ * @brief DEFAULT user output mode. 
+ *  displays analytics of program data
+ * 
+ * @param page_table    : tree object
+ * @param file          : file for reading
+ * @param PROCESS_LINES : addresses to process
+ */
 void modes::standard_out(tree *page_table, 
         char *file, 
         unsigned int PROCESS_LINES, 

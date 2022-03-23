@@ -8,6 +8,7 @@
 #ifndef MAP_H_                                 // INCLUDE GUARD
 #define MAP_H_
 
+/* MAPPING CLASS TO STORE PAGE TABLE DATA */
 class mymap {
     public:
         unsigned int key;
