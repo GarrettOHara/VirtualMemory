@@ -98,6 +98,9 @@ void cache::update(unsigned int virtual_time,
     /* search to see if LRU contains mapping*/
     for(const auto &lookup_LRU : this->LRU){
         unsigned int LRU_address = lookup_LRU.second;
+
+        /* if mapping is contained, update virtual time 
+            and resize LRU if needed */
         if(vpn==LRU_address){
             this->LRU.erase(lookup_LRU.first);
             this->LRU.emplace(virtual_time,vpn);
@@ -105,15 +108,13 @@ void cache::update(unsigned int virtual_time,
         }
     }
 
-    /* value not present in LRU */
-    if(this->LRU.size()==LRU_SIZE){
+    /* maintian LRU size */
+    if(this->LRU.size()>this->size){
         unsigned int value_to_remove = LRU.begin()->first; // REMOVE OLDEST LRU MAPPING
         // std::cout << "DROPPING: ";
         // hex_string(LRU.begin()->second,true);
         LRU.erase(value_to_remove);
-    }
-    
-    LRU.emplace(virtual_time,vpn);
+    }    
 }
 
 
@@ -133,13 +134,11 @@ mymap* cache::insert(unsigned int vpn,
     unsigned int pfn,
     bool page_table_hit){
 
-    //std::cout << "INSERTING: \n" << "LRU SIZE: " << this->LRU.size() << " CACHE SIZE: " << this->lookup.size() << std::endl; 
-
     /* room in cache available, no need for replacement */
     if(this->lookup.size() < this->size){
         mymap *mymap = new typename mymap::mymap(virtual_time,address,pfn,false,page_table_hit);
-        this->lookup[vpn]=mymap;
-        this->LRU[virtual_time]=vpn;
+        this->lookup.emplace(vpn,mymap);
+        this->LRU.emplace(virtual_time,vpn);
     
         /* update LRU */
         this->update(virtual_time, vpn);
@@ -148,51 +147,31 @@ mymap* cache::insert(unsigned int vpn,
 
     /* no more room in cache, replacement algorithm */
     } else {
-        /* if cache size is smaller than LRU then all elements will be in LRU
-            must choose oldes instead */
-        if(this->size < LRU_SIZE){
-
-            if(LRU.rbegin()==LRU.rend())
-                throw std::length_error("LRU SIZE ERROR");
-            else{
-                unsigned int i = 0;
-                std::map<unsigned int, unsigned int>::iterator LRU_it;
-                for(LRU_it = LRU.begin(); LRU_it != LRU.end(); LRU_it++){
-                    //std::cout << i << " "; i++;
-                    /* if lookup contains LRU value, remove it */
-                    if(lookup.count(LRU_it->second)!=0)
-                        break;
-                }
-
-                // std::cout<<"\t\t\t\t\tREPLACING: ";
-                // hex_string(LRU_it->second,true);
-                lookup.erase(LRU_it->second);
-            }
-            insert(vpn,virtual_time,address,pfn,page_table_hit);
         
-        /* if cache is larger than LRU there will be a victim */
-        } else {
             /* create temporary hashset for linear comparison in cache and LRU */
             std::unordered_set<unsigned int> tmp_lru_values;
             for(const auto &LRU_pair : LRU)
                 tmp_lru_values.emplace(LRU_pair.second);
 
             unsigned int victim;
+            //std::cout<<"LRU SIZE: "<<LRU.size()<<std::endl;
+            
 
             /* locate victim by iterating through cache */
             for(const auto &lookup_pair : lookup){
-                hex_string(lookup_pair.first,false);std::cout << " ";
-                if(tmp_lru_values.count(lookup_pair.first)==0){
+                // hex_string(lookup_pair.first,false);std::cout << " ";
+                if(tmp_lru_values.count(lookup_pair.first)!=0){
                     victim = lookup_pair.first;
                     break;
                 }
             }
-
+            std::cout<<"\t\t\t\t\t\t\t\tREPLACING: ";
+            hex_string(victim,true);
             lookup.erase(victim);
+            
             
             /* recurssive call since cache has room */
             insert(vpn,virtual_time,address,pfn,page_table_hit);
-        }
     }
 }
 
@@ -200,6 +179,40 @@ mymap* cache::insert(unsigned int vpn,
 
 
 /*
+
+
+/* if cache size is smaller than LRU then all elements will be in LRU
+            must choose oldes instead
+        // if(this->size < LRU_SIZE){
+
+        //     if(LRU.rbegin()==LRU.rend())
+        //         throw std::length_error("LRU SIZE ERROR");
+        //     else{
+        //         unsigned int i = 0;
+        //         std::map<unsigned int, unsigned int>::iterator LRU_it;
+        //         for(LRU_it = LRU.begin(); LRU_it != LRU.end(); LRU_it++){
+                    
+        //             std::cout<< LRU_it->first << "\t";
+        //             hex_string(LRU_it->second, true);
+
+        //             /* if lookup contains LRU value, remove it
+        //             if(lookup.count(LRU_it->second)!=0){
+        //                 std::cout<<"breaking with: ";
+        //                 hex_string(LRU_it->second,false);
+        //                 break;
+        //             }
+        //         }
+
+        //         std::cout<<"\t\t\t\t\tREPLACING: ";
+        //         hex_string(LRU_it->second,false);
+        //         std::cout <<" " << LRU_it->first<<"\n\n";
+        //         lookup.erase(LRU_it->second);
+        //     }
+        //     insert(vpn,virtual_time,address,pfn,page_table_hit);
+        
+        // if cache is larger than LRU there will be a victim
+        // } else {
+
 
  
         
