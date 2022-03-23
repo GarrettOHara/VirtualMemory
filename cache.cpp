@@ -94,7 +94,7 @@ mymap* cache::contains(unsigned int vpn){
  */
 void cache::update(unsigned int virtual_time,
             unsigned int vpn){
-    
+
     /* search to see if LRU contains mapping*/
     for(const auto &lookup_LRU : this->LRU){
         unsigned int LRU_address = lookup_LRU.second;
@@ -114,7 +114,7 @@ void cache::update(unsigned int virtual_time,
         // std::cout << "DROPPING: ";
         // hex_string(LRU.begin()->second,true);
         LRU.erase(value_to_remove);
-    }    
+    }   
 }
 
 
@@ -150,26 +150,42 @@ mymap* cache::insert(unsigned int vpn,
         
             /* create temporary hashset for linear comparison in cache and LRU */
             std::unordered_set<unsigned int> tmp_lru_values;
-            for(const auto &LRU_pair : LRU)
+            for(const auto &LRU_pair : LRU){
                 tmp_lru_values.emplace(LRU_pair.second);
+                //hex_string(LRU_pair.second,true);
+            }
 
             unsigned int victim;
+            bool victim_found = false;
             //std::cout<<"LRU SIZE: "<<LRU.size()<<std::endl;
             
 
             /* locate victim by iterating through cache */
+            std::unordered_map<unsigned int, mymap*>::iterator it;
+            // for(it = lookup.end(); it != lookup.begin(); it--){
+
+            // }
             for(const auto &lookup_pair : lookup){
                 // hex_string(lookup_pair.first,false);std::cout << " ";
-                if(tmp_lru_values.count(lookup_pair.first)!=0){
+                if(tmp_lru_values.count(lookup_pair.first)==0){
                     victim = lookup_pair.first;
+                    victim_found = true;
                     break;
                 }
             }
-            std::cout<<"\t\t\t\t\t\t\t\tREPLACING: ";
-            hex_string(victim,true);
-            lookup.erase(victim);
-            
-            
+            if(victim_found){
+                // std::cout<<"\t\t\t\t\t\t\t\tREPLACING: ";
+                // hex_string(victim,true);
+                // std::cout<<"\n";
+                lookup.erase(victim);
+            } else {
+                lookup.erase(LRU.begin()->first);
+                unsigned int value_to_remove = LRU.begin()->first; // REMOVE OLDEST LRU MAPPING
+                // std::cout << "DROPPING: ";
+                // hex_string(LRU.begin()->second,true);
+                LRU.erase(value_to_remove);
+            }
+
             /* recurssive call since cache has room */
             insert(vpn,virtual_time,address,pfn,page_table_hit);
     }

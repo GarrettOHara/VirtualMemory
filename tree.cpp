@@ -402,9 +402,9 @@ mymap* tree::insert(tree *page_table,
         page_table->insert(page_table,address,PFN);
 
         /* update cache */
-        std::cout<< "\t\t\t\t\t\t\t\tINSERTING: ";
-        hex_tostring(VPN,false);
-        std::cout<<" " << virtual_time <<"\n";
+        // std::cout<< "\t\t\t\t\t\t\t\tINSERTING: ";
+        // hex_tostring(VPN,false);
+        // std::cout<<" " << virtual_time <<"\n";
         return page_table->cache_ptr->insert(VPN,virtual_time,address,PFN,false);
     }
 }
