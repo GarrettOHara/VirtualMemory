@@ -181,7 +181,7 @@ void modes::vpn_pa(tree *page_table, char *file, int PROCESS_LINES, std::vector<
             /* get next address and process */
             if(NextAddress(ifp, &trace)){
                 unsigned int offset = (trace.addr & BUFFER);
-                mymap *mymap = page_table->page_lookup(page_table,trace.addr);
+                mymap *mymap = page_table->page_lookup(page_table,trace.addr,i);
                 if(mymap==nullptr){
                     page_table->insert(page_table,trace.addr,PFN);
                     mymap = page_table->page_lookup(page_table,trace.addr);
@@ -278,6 +278,7 @@ void modes::vpn_tlb(tree *page_table,
                 /* lookup page in TBL cache and pagetable */
                 /* return MISS MISS, or MISS HIT */
                 mymap *mymap = page_table->page_lookup(page_table,trace.addr,i);
+               
                 
                 /* TBL cache miss and pagetable miss, demand paging */
                 /* RETURN MISS MISS*/
