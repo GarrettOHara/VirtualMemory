@@ -62,7 +62,7 @@ unsigned int convert_endian(unsigned int num){
  */
 void hex_tostring(unsigned int x, bool padding){
     if(padding)
-        printf("%#lx\n\t\t",x);
+        printf("%#lx\n",x);
     else 
         printf("%#lx ",x);
 }
@@ -170,14 +170,20 @@ unsigned int tree::virtual_address_page(unsigned int address,
     return (bitmask & address) >> bit_shift;
 }
 
-/* LOOK FOR MAPPING IN CACHE, THEN WALK TREE TO 
-   SEE IF MAPPING IS PRESENT 
+/**
+ * @brief look for mapping in the TBL cache,
+ *  then walk the PageTable tree to locate mapping
    
-   RETURNS 
+   RETURNS
         TLB: HIT
         TLB: MISS, PAGETABLE: HIT
         TBL: MISS, PAGETABLE: MISS
-*/
+ * 
+ * @param page_table    : tree object
+ * @param vpn           : address read from file
+ * @param virtual_time  : time to update LRU
+ * @return mymap* : mapping object of values
+ */
 mymap* tree::page_lookup(tree *page_table, 
         unsigned int vpn, 
         unsigned int virtual_time){
@@ -198,7 +204,6 @@ mymap* tree::page_lookup(tree *page_table,
             return newmapping;
         }
 
-        // std::cout<<"CACHE MISS PAGE TABLE WALK"<<std::endl;
         /* MISS: page table walk */
         level *l = page_table->root_ptr;
         
@@ -223,13 +228,12 @@ mymap* tree::page_lookup(tree *page_table,
                 /* PAGE TABLE MISS: mapping is not present, 
                    return null, demand paging */
                 if(l->mappings[index]==nullptr){
-                    // std::cout<<"PAGE TABLE MISS"<<std::endl;
                     return nullptr;
                 }
                 
                 /* PAGE TABLE HIT: return pointer to mapping */
                 else{
-                    // std::cout<<"PAGE TABLE HIT"<<std::endl;
+                    //page_table->cache_ptr->insert(VPN,virtual_time,vpn,0,true);
                     l->mappings[index]->page_table_hit = true;
                     return l->mappings[index];
                 }
@@ -241,7 +245,14 @@ mymap* tree::page_lookup(tree *page_table,
     
 }
 
-
+/**
+ * @brief PageTable walk / traverse tree to locate
+ *  mapping object
+ * 
+ * @param page_table : tree object
+ * @param vpn : 
+ * @return mymap* : mapping object
+ */
 mymap* tree::page_lookup(tree *page_table, unsigned int vpn){
 
     level *l = page_table->root_ptr;
@@ -278,15 +289,14 @@ mymap* tree::page_lookup(tree *page_table, unsigned int vpn){
     }
 }
 
-//refactor so this is created during construction of table
-unsigned int remove_offset(tree *page_table){
-    unsigned int BUFFER = 0x00000000;
-    for(int i = 0; i < page_table->levels; i++)
-        BUFFER = BUFFER ^ page_table->bitmask[i];
-    return BUFFER;
-}
 
-/* INSERT MAPPING INTO PAGE TABLE */
+/**
+ * @brief insert mapping into page table
+ * 
+ * @param page_table : tree object
+ * @param address    : address from file
+ * @param PFN        : Physical Frame Number
+ */
 void tree::insert(tree *page_table, 
         unsigned int address, 
         unsigned int PFN){
@@ -323,7 +333,20 @@ void tree::insert(tree *page_table,
     }
 }
 
-/* MISS MISS, DEMAIND PAGING UPDATE CACHE */
+/**
+ * @brief insert mapping into PageTable tree
+ *  and update TLB cache. 
+ * 
+ * This will be called when we have a 
+ *  - cache miss
+ *  - page table miss
+ * 
+ * @param page_table   : tree object
+ * @param virtual_time : time for LRU update
+ * @param address      : address from file
+ * @param PFN          : Physical Frame Number
+ * @return mymap*      : mapping object
+ */
 mymap* tree::insert(tree *page_table, 
         unsigned int virtual_time,
         unsigned int address, 
@@ -377,6 +400,9 @@ mymap* tree::insert(tree *page_table,
         page_table->insert(page_table,address,PFN);
 
         /* update cache */
+        // std::cout<< "\t\t\t\t\t\t\t\tINSERTING: ";
+        // hex_tostring(VPN,false);
+        // std::cout<<" " << virtual_time <<"\n";
         return page_table->cache_ptr->insert(VPN,virtual_time,address,PFN,false);
     }
 }

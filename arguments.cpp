@@ -3,7 +3,12 @@
 using namespace std;
 using namespace arguments;
 
-/* prints all CLI arguments to standard out for debugging purposes */
+/**
+ * @brief prints all CLI arguments to standard out 
+ *  for debugging purposes 
+ * 
+ * @param page_table : tree object
+ */
 void arguments::print_arguments(tree *page_table){
     cout << "BIT COUNT:\t" << BIT_COUNT << endl;
     cout << "LEVEL COUNT:\t" << LEVEL_COUNT << endl;

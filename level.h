@@ -13,6 +13,7 @@
 
 class tree;
 
+/* LEVEL CLASS TO STORE LEVEL AND LEAF NODES */
 class level {
     private:
         int depth;
@@ -22,8 +23,7 @@ class level {
     public:
         level **level_pts;
         mymap **mappings;
-        // std::map<unsigned int, unsigned int> 
-        //     *mappings;
+
         level(int depth, tree *ptr, int size);
         ~level();
 };

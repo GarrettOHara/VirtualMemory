@@ -16,6 +16,7 @@
 #define DEFAULT -1
 #define DEFAULT_MODE "DEFAULT"
 
+/* STRUCT TO WRAP CLI ARGUMENTS */
 namespace arguments {
     std::vector<int> BITS;
     int BIT_COUNT   = 0;
