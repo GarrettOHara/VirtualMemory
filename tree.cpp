@@ -204,7 +204,6 @@ mymap* tree::page_lookup(tree *page_table,
             return newmapping;
         }
 
-        // std::cout<<"CACHE MISS PAGE TABLE WALK"<<std::endl;
         /* MISS: page table walk */
         level *l = page_table->root_ptr;
         
@@ -229,13 +228,12 @@ mymap* tree::page_lookup(tree *page_table,
                 /* PAGE TABLE MISS: mapping is not present, 
                    return null, demand paging */
                 if(l->mappings[index]==nullptr){
-                    // std::cout<<"PAGE TABLE MISS"<<std::endl;
                     return nullptr;
                 }
                 
                 /* PAGE TABLE HIT: return pointer to mapping */
                 else{
-                    // std::cout<<"PAGE TABLE HIT"<<std::endl;
+                    //page_table->cache_ptr->insert(VPN,virtual_time,vpn,0,true);
                     l->mappings[index]->page_table_hit = true;
                     return l->mappings[index];
                 }

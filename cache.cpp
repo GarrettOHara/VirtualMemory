@@ -75,7 +75,6 @@ mymap* cache::contains(unsigned int vpn){
     
     /* TBL cache HIT */
     else{
-        // std::cout<<"HIT"<<std::endl;
         mymap *tmpmap = lookup[vpn];
         tmpmap->tlb_cache_hit = true;
         return tmpmap;
@@ -111,8 +110,6 @@ void cache::update(unsigned int virtual_time,
     /* maintian LRU size */
     if(this->LRU.size()>this->size){
         unsigned int value_to_remove = LRU.begin()->first; // REMOVE OLDEST LRU MAPPING
-        // std::cout << "DROPPING: ";
-        // hex_string(LRU.begin()->second,true);
         LRU.erase(value_to_remove);
     }   
 }
@@ -150,23 +147,15 @@ mymap* cache::insert(unsigned int vpn,
         
             /* create temporary hashset for linear comparison in cache and LRU */
             std::unordered_set<unsigned int> tmp_lru_values;
-            for(const auto &LRU_pair : LRU){
+            for(const auto &LRU_pair : LRU)
                 tmp_lru_values.emplace(LRU_pair.second);
-                //hex_string(LRU_pair.second,true);
-            }
+
 
             unsigned int victim;
             bool victim_found = false;
-            //std::cout<<"LRU SIZE: "<<LRU.size()<<std::endl;
             
-
-            /* locate victim by iterating through cache */
-            std::unordered_map<unsigned int, mymap*>::iterator it;
-            // for(it = lookup.end(); it != lookup.begin(); it--){
-
-            // }
+            /* locate victim by iterating through cache */            
             for(const auto &lookup_pair : lookup){
-                // hex_string(lookup_pair.first,false);std::cout << " ";
                 if(tmp_lru_values.count(lookup_pair.first)==0){
                     victim = lookup_pair.first;
                     victim_found = true;
@@ -174,114 +163,29 @@ mymap* cache::insert(unsigned int vpn,
                 }
             }
             if(victim_found){
-                // std::cout<<"\t\t\t\t\t\t\t\tREPLACING: ";
+                // std::cout<<"\n\t\t\t\t\t\t\t\tREPLACING: ";
                 // hex_string(victim,true);
-                // std::cout<<"\n";
+                // std::cout<<"\t\t\t\t\t\t\t\t\t";
+                // hex_string(vpn,true);
                 lookup.erase(victim);
             } else {
+                //std::cout<<"in"<<std::endl;
                 lookup.erase(LRU.begin()->first);
                 unsigned int value_to_remove = LRU.begin()->first; // REMOVE OLDEST LRU MAPPING
-                // std::cout << "DROPPING: ";
-                // hex_string(LRU.begin()->second,true);
-                LRU.erase(value_to_remove);
+                LRU.erase(value_to_remove);                        // REMOVE OLDEST ENTRY FROM LRU
             }
 
             /* recurssive call since cache has room */
-            insert(vpn,virtual_time,address,pfn,page_table_hit);
+            //insert(vpn,virtual_time,address,pfn,page_table_hit);
+
+            mymap *mymap = new typename mymap::mymap(virtual_time,address,pfn,false,page_table_hit);
+            this->lookup.emplace(vpn,mymap);
+            this->LRU.emplace(virtual_time,vpn);
+        
+            /* update LRU */
+            this->update(virtual_time, vpn);
+
+            return mymap;
+
     }
 }
-
-
-
-
-/*
-
-
-/* if cache size is smaller than LRU then all elements will be in LRU
-            must choose oldes instead
-        // if(this->size < LRU_SIZE){
-
-        //     if(LRU.rbegin()==LRU.rend())
-        //         throw std::length_error("LRU SIZE ERROR");
-        //     else{
-        //         unsigned int i = 0;
-        //         std::map<unsigned int, unsigned int>::iterator LRU_it;
-        //         for(LRU_it = LRU.begin(); LRU_it != LRU.end(); LRU_it++){
-                    
-        //             std::cout<< LRU_it->first << "\t";
-        //             hex_string(LRU_it->second, true);
-
-        //             /* if lookup contains LRU value, remove it
-        //             if(lookup.count(LRU_it->second)!=0){
-        //                 std::cout<<"breaking with: ";
-        //                 hex_string(LRU_it->second,false);
-        //                 break;
-        //             }
-        //         }
-
-        //         std::cout<<"\t\t\t\t\tREPLACING: ";
-        //         hex_string(LRU_it->second,false);
-        //         std::cout <<" " << LRU_it->first<<"\n\n";
-        //         lookup.erase(LRU_it->second);
-        //     }
-        //     insert(vpn,virtual_time,address,pfn,page_table_hit);
-        
-        // if cache is larger than LRU there will be a victim
-        // } else {
-
-
- 
-        
-        
-            
-        int i = 0; 
-        for(const auto &lookup_mapping : lookup){
-            
-            mymap *tmp_mapping = lookup_mapping.second;
-            bool found = false;
-
-            // hex_string(tmp_mapping->vpn,true);
-            
-            // std::cout<<"i: "<< i;
-            // int j = 0;
-            for(const auto &lookup_LRU : LRU){
-                // std::cout<<" j: "<< j;
-                unsigned int lru_vpn = lookup_LRU.second;
-                
-                // hex_string(tmp_mapping->vpn,false);
-                // hex_string(lookup_LRU.second,false);
-                
-
-                if(tmp_mapping->vpn == lru_vpn){
-                    // std::cout<<"MAPPING FOUND IN LRU"<<std::endl;
-                    found = true;               
-                } 
-                // j++;
-            }
-            // std::cout<<std::endl;
-            // i++;
-
-//            mapping was not present in working set (LRU) -> victim 
-            if(!found){
-                // std::cout<<"REPLACING: ";
-                // hex_string(lookup_mapping.first,true);
-                lookup.erase(lookup_mapping.first);
-                
- //           recurssive call since cache has room, break loop
-                insert(vpn,virtual_time,address,pfn,page_table_hit);
-                break;
-            }
-           std::cout<<"NOT REPLACED"<<std::endl;
-        }
-    }
-
-    //mymap *tmpmap = this->contains(vpn);
-
-    /* mapping not present, insert into cache and update LRU */
-    //if(tmpmap == nullptr){
-    
-    /* mapping is present, update LRU
-    // } else {
-    //     this->update(virtual_time, vpn);
-    // }
-*/
