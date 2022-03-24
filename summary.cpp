@@ -245,6 +245,7 @@ void modes::vpn_tlb(tree *page_table,
 
                 /* extract offset for MMU converstion */
                 unsigned int offset = (trace.addr & BUFFER);
+                unsigned int FULL_VPN = trace.addr & page_table->fullbitmask;
 
                 /* lookup page in TBL cache and pagetable */
                 /* return MISS MISS, or MISS HIT */
@@ -253,7 +254,16 @@ void modes::vpn_tlb(tree *page_table,
                 /* TBL cache miss and pagetable miss, demand paging */
                 /* RETURN MISS MISS*/
                 if(mymap==nullptr){
-                    mymap = page_table->insert(page_table,i,trace.addr,PFN);
+                    /* demand paging on tree */
+                    page_table->insert(page_table,trace.addr,PFN);
+                    
+                    /* insert mapping into TLB cache */
+                    page_table->cache_ptr->insert(FULL_VPN,i,trace.addr,PFN,false);
+
+                    /* get mapping data */
+                    mymap = page_table->page_lookup(page_table,trace.addr);
+                    mymap->page_table_hit=false;
+                    mymap->tlb_cache_hit=false;
                     PFN++;
                 }
 
@@ -275,15 +285,26 @@ void modes::vpn_tlb(tree *page_table,
                 /* extract offset for MMU converstion */
                 unsigned int offset = (trace.addr & BUFFER);
 
+                /* extract full vpn for cache lookup */
+                unsigned int FULL_VPN = trace.addr & page_table->fullbitmask;
+
                 /* lookup page in TBL cache and pagetable */
                 /* return MISS MISS, or MISS HIT */
                 mymap *mymap = page_table->page_lookup(page_table,trace.addr,i);
-               
                 
                 /* TBL cache miss and pagetable miss, demand paging */
                 /* RETURN MISS MISS*/
                 if(mymap==nullptr){
-                    mymap = page_table->insert(page_table,i,trace.addr,PFN);
+                    /* demand paging on tree */
+                    page_table->insert(page_table,trace.addr,PFN);
+                    
+                    /* insert mapping into TLB cache */
+                    page_table->cache_ptr->insert(FULL_VPN,i,trace.addr,PFN,false);
+
+                    /* get mapping data */
+                    mymap = page_table->page_lookup(page_table,trace.addr);
+                    mymap->page_table_hit=false;
+                    mymap->tlb_cache_hit=false;
                     PFN++;
                 }
 
